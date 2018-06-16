@@ -12,19 +12,29 @@ from keras.applications.inception_v3 import decode_predictions, preprocess_input
 from PIL import Image, ImageOps
 from VQAGenerator import VQAGenerator
 from keras.models import load_model
+from random import randint
 
-training_generator = VQAGenerator(True, batchSize=64)
-validation_generator = VQAGenerator(False, batchSize=64)
+
+training_generator = VQAGenerator(True, batchSize=512)
+validation_generator = VQAGenerator(False, batchSize=512)
+
 model = VQAModel.createModel(training_generator.questionLength, training_generator.answerLength)
-#model = load_model('C:/ml/VQA/Database/model.keras')
+# model = load_model('C:/ml/VQA/Database/model.keras')
 
-
-model.fit_generator(training_generator, epochs=5, validation_data=validation_generator)
+model.fit_generator(training_generator, epochs=8)
 model.save('C:/ml/VQA/Database/model.keras')
 
-# prediction = model.predict(validation_generator.single(556))[0]
-# top = [(i,prediction[i]) for i in range(len(prediction))]
-# top = sorted(top, key=lambda entry: entry[1])
-# inv_map = {v: k for k, v in validation_generator.answerEncoding.items()}
-# for entry in top[-5:]:
-#     print('Result '+str(entry[0])+': '+str(entry[1])+", "+inv_map[entry[0]])
+prediction_generator = validation_generator
+prediction_generator.predict = True
+# model = load_model('C:/ml/VQA/Database/model.keras')
+# prediction_generator = VQAGenerator(False, batchSize=64, predict=True)
+
+prediction = model.predict_generator(prediction_generator)
+prediction_generator.evaluate(prediction)
+
+
+for xx in range(20):
+    k = randint(0,len(prediction_generator.good))
+    prediction_generator.print(k,prediction[k])
+
+# model.fit_generator(training_generator, epochs=1, validation_data=validation_generator)

@@ -1,5 +1,5 @@
 from keras.applications.inception_v3 import InceptionV3
-from keras.layers import Input, Dense, Concatenate
+from keras.layers import Input, Dense, Concatenate, GRU, Multiply
 from keras.models import Model
 
 import tensorflow as tf
@@ -26,17 +26,22 @@ def createModelInceptionFull():
 
 def createModel(words, answers):
 
-    question = Input(shape=(words,))
-    dense_question = Dense(512, activation='tanh')(question)
+    question = Input(shape=(14,100))
+    # question_special = Input(shape=(words,))
+    # dense_question_special = Dense(512, activation='relu')(question_special)
+    gru = GRU(512+256)(question)
+    # concat = Concatenate()([dense_question_special,gru])
+    dense_question = Dense(512+256, activation='relu')(gru)
 
     image = Input(shape=(2048,))
-    dense_image = Dense(512, activation='tanh')(image)
+    dense_image = Dense(512+256, activation='relu')(image)
 
-    both = Concatenate()([dense_image, dense_question])
-    dense_both = Dense(1024, activation='tanh')(both)
-    dense_both = Dense(1024, activation='tanh')(dense_both)
+    both = Multiply()([dense_image, dense_question])
+    dense_both = Dense(2048, activation='relu')(both)
     predictions = Dense(answers, activation='softmax')(dense_both)
 
     model = Model(inputs=[question, image], outputs=predictions)
-    model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
+    model.compile(optimizer='adam', loss='categorical_crossentropy')
+    #model.summary()
+
     return model

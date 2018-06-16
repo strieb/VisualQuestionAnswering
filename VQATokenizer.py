@@ -21,15 +21,16 @@ versionType ='v2_' # this should be '' when using VQA v2.0 dataset
 taskType    ='OpenEnded' # 'OpenEnded' only for v2.0. 'OpenEnded' or 'MultipleChoice' for v1.0
 dataType    ='mscoco'  # 'mscoco' only for v1.0. 'mscoco' for real and 'abstract_v002' for abstract for v1.0.
 dataSubType ='train2014'
-databaseFile ='%s/Database/%s'%(dataDir, dataSubType)
+databaseFile ='%s/Database/%s.pickle'%(dataDir, dataSubType)
 questionsEncFile = '%s/Database/questions.json'%(dataDir)
 answersEncFile = '%s/Database/answers.json'%(dataDir)
 
 with open(databaseFile, 'rb') as fp:
     database = pickle.load(fp)
-tokens = [token for question in database['questions'] for token in str.split(question)]
+tokens = [str.lower(token) for question in database['questions'] for token in question]
 questionEncoding = getMostcommon(tokens,2048)
 answers = [getAnswer(answers) for answers in database['answers']]
+# answers = [answer for answers in database['answers'] for answer in answers]
 answerEncoding = getMostcommon(answers,2048)
 
 with open(questionsEncFile, 'w') as fp:
