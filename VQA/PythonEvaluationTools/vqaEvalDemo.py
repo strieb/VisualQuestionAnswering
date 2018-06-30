@@ -1,9 +1,6 @@
 # coding: utf-8
 
-import sys
-dataDir = '../../VQA'
-sys.path.insert(0, '%s/PythonHelperTools/vqaTools' %(dataDir))
-from vqa import VQA
+from vqaEvaluation.vqa import VQA
 from vqaEvaluation.vqaEval import VQAEval
 import matplotlib.pyplot as plt
 import skimage.io as io
@@ -12,13 +9,14 @@ import random
 import os
 
 # set up file names and paths
+dataDir		='C:/ml/VQA'
 versionType ='v2_' # this should be '' when using VQA v2.0 dataset
 taskType    ='OpenEnded' # 'OpenEnded' only for v2.0. 'OpenEnded' or 'MultipleChoice' for v1.0
-dataType    ='mscoco'  # 'mscoco' only for v1.0. 'mscoco' for real and 'abstract_v002' for abstract for v1.0. 
-dataSubType ='train2014'
+dataType    ='mscoco'  # 'mscoco' only for v1.0. 'mscoco' for real and 'abstract_v002' for abstract for v1.0.
+dataSubType ='val2014'
 annFile     ='%s/Annotations/%s%s_%s_annotations.json'%(dataDir, versionType, dataType, dataSubType)
 quesFile    ='%s/Questions/%s%s_%s_%s_questions.json'%(dataDir, versionType, taskType, dataType, dataSubType)
-imgDir      ='%s/Images/%s/%s/' %(dataDir, dataType, dataSubType)
+imgDir 		= '%s/Images/%s/' %(dataDir, dataSubType)
 resultType  ='fake'
 fileTypes   = ['results', 'accuracy', 'evalQA', 'evalQuesType', 'evalAnsType'] 
 
@@ -26,6 +24,8 @@ fileTypes   = ['results', 'accuracy', 'evalQA', 'evalQuesType', 'evalAnsType']
 
 [resFile, accuracyFile, evalQAFile, evalQuesTypeFile, evalAnsTypeFile] = ['%s/Results/%s%s_%s_%s_%s_%s.json'%(dataDir, versionType, taskType, dataType, dataSubType, \
 resultType, fileType) for fileType in fileTypes]  
+resFile     ='%s/Results/results.json' %(dataDir)
+
 
 # create vqa object and vqaRes object
 vqa = VQA(annFile, quesFile)
@@ -42,28 +42,28 @@ By default it uses all the question ids in annotation file
 vqaEval.evaluate() 
 
 # print accuracies
-print "\n"
-print "Overall Accuracy is: %.02f\n" %(vqaEval.accuracy['overall'])
-print "Per Question Type Accuracy is the following:"
+print ("\n")
+print ("Overall Accuracy is: %.02f\n" %(vqaEval.accuracy['overall']))
+print ("Per Question Type Accuracy is the following:")
 for quesType in vqaEval.accuracy['perQuestionType']:
-	print "%s : %.02f" %(quesType, vqaEval.accuracy['perQuestionType'][quesType])
-print "\n"
-print "Per Answer Type Accuracy is the following:"
+	print ("%s : %.02f" %(quesType, vqaEval.accuracy['perQuestionType'][quesType]))
+print ("\n")
+print ("Per Answer Type Accuracy is the following:")
 for ansType in vqaEval.accuracy['perAnswerType']:
-	print "%s : %.02f" %(ansType, vqaEval.accuracy['perAnswerType'][ansType])
-print "\n"
+	print ("%s : %.02f" %(ansType, vqaEval.accuracy['perAnswerType'][ansType]))
+print ("\n")
 # demo how to use evalQA to retrieve low score result
 evals = [quesId for quesId in vqaEval.evalQA if vqaEval.evalQA[quesId]<35]   #35 is per question percentage accuracy
 if len(evals) > 0:
-	print 'ground truth answers'
+	print ('ground truth answers')
 	randomEval = random.choice(evals)
 	randomAnn = vqa.loadQA(randomEval)
 	vqa.showQA(randomAnn)
 
-	print '\n'
-	print 'generated answer (accuracy %.02f)'%(vqaEval.evalQA[randomEval])
+	print ('\n')
+	print ('generated answer (accuracy %.02f)'%(vqaEval.evalQA[randomEval]))
 	ann = vqaRes.loadQA(randomEval)[0]
-	print "Answer:   %s\n" %(ann['answer'])
+	print ("Answer:   %s\n" %(ann['answer']))
 
 	imgId = randomAnn[0]['image_id']
 	imgFilename = 'COCO_' + dataSubType + '_'+ str(imgId).zfill(12) + '.jpg'
