@@ -15,28 +15,12 @@ from PIL import Image, ImageOps
 from keras.models import load_model
 from random import randint
 
-
-training_generator = VQAGenerator(True, batchSize=512, imageType='preprocessed_24')
-
-# # model = VQAModel.createModel(training_generator.questionLength, training_generator.answerLength, training_generator.gloveEncoding())
 model = load_model('C:/ml/VQA/Database/model.keras')
 
-model.fit_generator(training_generator, epochs=6,workers=4)
-model.save('C:/ml/VQA/Database/model.keras')
-del(training_generator)
-
-validation_generator = VQAGenerator(False, batchSize=512, imageType='preprocessed_24')
-prediction_generator = validation_generator
-prediction_generator.predict = True
-
-# model = load_model('C:/ml/VQA/Database/model.keras')
-# prediction_generator = VQAGenerator(False, batchSize=64, predict=True)
-
+prediction_generator = VQAGenerator(False, batchSize=512, imageType='preprocessed_24', predict= True)
 eval_model = VQAModel.evalModel(model)
 
-# prediction, heat = eval_model.predict_generator(prediction_generator,workers=4)
-prediction, heat = eval_model.predict_generator(prediction_generator,workers=8, steps=30)
-
+prediction, heat = eval_model.predict_generator(prediction_generator,workers=8, steps=50)
 prediction_generator.evaluate(prediction)
 
 for xx in range(20):

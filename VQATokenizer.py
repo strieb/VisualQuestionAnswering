@@ -5,10 +5,9 @@ from collections import Counter
 import json
 
 def getMostcommon(tokens, n):
-    common = Counter(tokens).most_common(n)
-    bag = {answer: idx for idx, (answer, number) in enumerate(common)}
-    commonLength = sum([count for key, count in common])
-    print('Coverage: ' + str(commonLength/len(tokens)))
+    common = Counter(tokens).most_common(10000)
+    bag = {answer: idx for idx, (answer, number) in enumerate(common) if number >= n}
+    print('Length: '+str(len(bag)))
     return bag
 
 def getAnswer(answers):
@@ -28,10 +27,10 @@ answersEncFile = '%s/Database/answers.json'%(dataDir)
 with open(databaseFile, 'rb') as fp:
     database = pickle.load(fp)
 tokens = [str.lower(token) for question in database['questions'] for token in question]
-questionEncoding = getMostcommon(tokens,2048)
+questionEncoding = getMostcommon(tokens,5)
 answers = [getAnswer(answers) for answers in database['answers']]
 # answers = [answer for answers in database['answers'] for answer in answers]
-answerEncoding = getMostcommon(answers,2048)
+answerEncoding = getMostcommon(answers,12)
 
 with open(questionsEncFile, 'w') as fp:
     json.dump(questionEncoding, fp)

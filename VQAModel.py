@@ -1,5 +1,5 @@
 from keras.applications.inception_v3 import InceptionV3
-from keras.layers import Input, Dense, Concatenate, GRU, Multiply, Reshape, GlobalAveragePooling1D,RepeatVector, Activation, Dot, Lambda, Embedding, AveragePooling2D
+from keras.layers import Input, Dense, Concatenate, GRU, Multiply, Reshape, GlobalAveragePooling1D,RepeatVector, Activation, Dot, Lambda, Embedding, AveragePooling2D, Dropout,GaussianDropout
 from keras.models import Model
 
 import tensorflow as tf
@@ -52,17 +52,12 @@ def createModel(words, answers, glove_encoding):
 
     question_embedded = embedding_layer(question)
 
-
-    # question_special = Input(shape=(words,))
-    # dense_question_special = Dense(200, activation='relu')(question)
     gru = GRU(512)(question_embedded)
-    # concat = Concatenate()([dense_question_special,gru])
 
     question_repeat = RepeatVector(24)(gru)
     
     image = Input(shape=(24, 2048))
 
-   
 
     # image_reshape = Reshape(target_shape=(64,2048))(image)
 
@@ -74,9 +69,11 @@ def createModel(words, answers, glove_encoding):
     dense_linear = Dense(1, activation='linear')(dense_concat)
     dense_reshape =  Reshape(target_shape=(24,))(dense_linear)
     softmax = Activation(activation='softmax')(dense_reshape)
-    softmax_reshape =  Reshape(target_shape=(1, 24))(softmax)
+    softmax_dropout = Dropout(rate=0.4)(softmax)
+    softmax_reshape =  Reshape(target_shape=(1, 24))(softmax_dropout)
     image_attention = Lambda(mult)([softmax_reshape,image])
     image_attention_reshape = Reshape(target_shape=(2048,))(image_attention)
+    
 
     dense_question = Dense(512, activation='relu')(gru)
     # dense_question_mult = Dense(512, activation='relu')(dense_question)
@@ -88,7 +85,8 @@ def createModel(words, answers, glove_encoding):
 
     both_mult = Multiply()([dense_question,dense_image])
     # both_concat = Concatenate()([both_mult, dense_question_concat, dense_image_concat])
-    dense_both = Dense(2048, activation='relu')(both_mult)
+    dense_both = Dense(1024, activation='relu')(both_mult)
+    # dense_both_dropout = Dropout(rate=0.5)(dense_both)
     predictions = Dense(answers, activation='sigmoid')(dense_both)
 
     model = Model(inputs=[question, image], outputs=predictions)

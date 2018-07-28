@@ -49,18 +49,20 @@ class VQAGenerator(Sequence):
             self.complementaries = json.load(fp)
 
         self.answerLength = len(self.answerEncoding)
-        self.questionLength = len(self.answerEncoding)
+        self.questionLength = len(self.questionEncoding)
         self.on_epoch_end()
       
     def on_epoch_end(self):
         if self.train:
-            print('shuffle')
-            random.shuffle(self.complementaries)
-            questionIDs = {self.database['ids'][i]: i for i in range(len(self.database['ids']))}
-            complementariesFlat = [index for both in self.complementaries for index in both]
-            # self.good = [questionIDs[index] for index in complementariesFlat]
-            # self.good = [i for i in range(len(self.database['answers'])) if self.getAnswer(i) in self.answerEncoding]
-            self.good = [i for i in range(len(self.database['answers']))]
+            # random.shuffle(self.complementaries)
+            # complementariesFlat = [index for both in self.complementaries for index in both]
+            # questionIDs = {self.database['ids'][i]: i for i in range(len(self.database['ids']))}
+            # complementariesIds = [questionIDs[index] for index in complementariesFlat]
+            allIds = [i for i in range(len(self.database['answers']))]
+            # diff = list(set(allIds)-set(complementariesIds))
+            # random.shuffle(diff)
+            # self.good = diff + complementariesIds
+            self.good = allIds
             random.shuffle(self.good)
         else:
             self.good = [i for i in range(len(self.database['answers']))]
@@ -178,8 +180,8 @@ class VQAGenerator(Sequence):
             draw = ImageDraw.Draw(img,'RGBA')
             for x in range(heat.shape[0]):
                 for y in range(heat.shape[1]):
-                    r = min(heat[x,y] * 30,1)
-                    gb = max(min(heat[x,y] * 30 - 1,1),0)
+                    r = min(heat[x,y] * 15,1)
+                    gb = max(min(heat[x,y] * 15 - 1,1),0)
                     draw.ellipse(((x*96+22+40,y*96+22+40),(x*96+22+56,y*96+22+56)),fill=(int(r * 255), int(gb * 255), int(gb * 255), int(r * 255)))
             # plt.imshow(heat, cmap='hot',norm=colors.Normalize(), interpolation='nearest')
             plt.imshow(img)
