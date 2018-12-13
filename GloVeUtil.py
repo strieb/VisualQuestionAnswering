@@ -2,14 +2,19 @@ import csv
 import numpy as np
 import pickle
 
-with open('C:/ml/VQA/Database/glove.6B.100d.txt', encoding='utf8') as csvFile:
+from Environment import DATADIR, GLOVE, GLOVE_SIZE
+with open(DATADIR+'/Database/'+GLOVE+'.txt', encoding='utf8') as csvFile:
     csvReader = csv.reader(csvFile, delimiter=' ',quoting=csv.QUOTE_NONE)
     index = {}
+    idx = 0
     for row in csvReader:
-        arr = np.ndarray(shape=(100,))
-        for i in range(100):
+        arr = np.ndarray(shape=(GLOVE_SIZE,))
+        for i in range(GLOVE_SIZE):
             arr[i] = float(row[i+1])
         index[row[0]] = arr
+        idx += 1
+        # if idx > 100000:
+        #     break
 
-with open('C:/ml/VQA/Database/glove100.pickle', 'wb') as fp:
+with open(DATADIR+'/Database/'+GLOVE+'.pickle', 'wb') as fp:
     pickle.dump(index, fp)

@@ -3,10 +3,10 @@ from keras.layers import Input, Dense, Concatenate, GRU, Multiply, Reshape, Glob
 from keras.models import Model
 
 import tensorflow as tf
-from keras.backend.tensorflow_backend import set_session
-import keras.backend as K
+from keras import backend as K
 import numpy as np
 
+from keras.backend.tensorflow_backend import set_session
 config = tf.ConfigProto()
 # dynamically grow the memory used on the GPU
 config.gpu_options.allow_growth = True
@@ -32,7 +32,7 @@ def mult(ip):
     return K.batch_dot(x,y)
 
     
-def konstant(batch):
+def constant(batch):
     batch_size = K.shape(batch)[0]
     k_constants = K.variable(np.reshape(np.identity(64),(1,64,64)))
     k_constants = K.tile(k_constants, (batch_size, 1, 1))
@@ -43,14 +43,14 @@ def evalModel(model):
     return Model(inputs=model.input, outputs=[model.output, model.get_layer('activation_1').output])
 
 def createModel(words, answers, glove_encoding):
-
     question = Input(shape=(14,))
 
-    embedding_layer = Embedding(words+2, 100, input_length=14, trainable=True)
+    embedding_layer = Embedding(words+2, glove_encoding.shape[1], input_length=14, trainable=True)
     embedding_layer.build((None,))
     embedding_layer.set_weights([glove_encoding])
 
     question_embedded = embedding_layer(question)
+    # question_trained = Dense(100, activation='linear')(question_embedded)
 
     gru = GRU(512)(question_embedded)
 
@@ -61,7 +61,7 @@ def createModel(words, answers, glove_encoding):
 
     # image_reshape = Reshape(target_shape=(64,2048))(image)
 
-    # fixed_input = Lambda(konstant)(image)
+    # fixed_input = Lambda(constant)(image)
     # image_reshape = Concatenate()([image_reshape,fixed_input])
 
     concat = Concatenate()([question_repeat,image])
@@ -69,8 +69,8 @@ def createModel(words, answers, glove_encoding):
     dense_linear = Dense(1, activation='linear')(dense_concat)
     dense_reshape =  Reshape(target_shape=(24,))(dense_linear)
     softmax = Activation(activation='softmax')(dense_reshape)
-    softmax_dropout = Dropout(rate=0.4)(softmax)
-    softmax_reshape =  Reshape(target_shape=(1, 24))(softmax_dropout)
+    # softmax_dropout = Dropout(rate=0.4)(softmax)
+    softmax_reshape =  Reshape(target_shape=(1, 24))(softmax)
     image_attention = Lambda(mult)([softmax_reshape,image])
     image_attention_reshape = Reshape(target_shape=(2048,))(image_attention)
     
@@ -86,8 +86,8 @@ def createModel(words, answers, glove_encoding):
     both_mult = Multiply()([dense_question,dense_image])
     # both_concat = Concatenate()([both_mult, dense_question_concat, dense_image_concat])
     dense_both = Dense(1024, activation='relu')(both_mult)
-    # dense_both_dropout = Dropout(rate=0.5)(dense_both)
-    predictions = Dense(answers, activation='sigmoid')(dense_both)
+    dense_both_dropout = Dropout(rate=0.5)(dense_both)
+    predictions = Dense(answers, activation='sigmoid')(dense_both_dropout)
 
     model = Model(inputs=[question, image], outputs=predictions)
     model.compile(optimizer='adam', loss='categorical_crossentropy')

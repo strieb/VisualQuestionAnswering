@@ -11,41 +11,39 @@ import matplotlib.colors as colors
 import os
 from keras.preprocessing.image import load_img
 
+from Environment import DATADIR, GLOVE, GLOVE_SIZE
+
+
 class VQAGenerator(Sequence):
-    def __init__(self, train=True, batchSize=32, dataDir='C:/ml/VQA', predict=False, imageType=None):
+    def __init__(self, train=True, batchSize=32, predict=False, imageType=None):
         self.dataSubType = 'train2014' if train else 'val2014'
-        self.dataDir = dataDir
         self.batchSize = batchSize
         self.predict = predict
         self.imageType = imageType
         self.train = train
-        databaseFile = '%s/Database/%s.pickle' % (dataDir, self.dataSubType)
-        imageIndexFile = '%s/Database/%simageindex.json' % (dataDir, self.dataSubType)
-        imagesFile = '%s/Database/%simages.npy' % (dataDir, self.dataSubType)
-        questionsEncFile = '%s/Database/questions.json' % (dataDir)
-        answersEncFile = '%s/Database/answers.json' % (dataDir)
-        gloveFile = '%s/Database/glove100.pickle' % (dataDir)
-        self.imagesDirectory = '%s/Images/%s/%s/' % (dataDir,self.dataSubType, self.imageType)
-        complementaryFile = '%s/Database/v2_mscoco_train2014_complementary_pairs.json' % (dataDir)
-        self.resultsFile =  '%s/Results/results.json' % (dataDir)
+        databaseFile = '%s/Database/%s.pickle' % (DATADIR, self.dataSubType)
+        imageIndexFile = '%s/Database/%simageindex.json' % (DATADIR, self.dataSubType)
+        imagesFile = '%s/Database/%simages.npy' % (DATADIR, self.dataSubType)
+        questionsEncFile = '%s/Database/questions.json' % (DATADIR)
+        answersEncFile = '%s/Database/answers.json' % (DATADIR)
+        self.imagesDirectory = '%s/Images/%s/%s/' % (DATADIR,self.dataSubType, self.imageType)
+        complementaryFile = '%s/Database/v2_mscoco_train2014_complementary_pairs.json' % (DATADIR)
+        self.resultsFile =  '%s/Results/results.json' % (DATADIR)
         
         with open(databaseFile, 'rb') as fp:
             self.database = pickle.load(fp)
 
-        with open(gloveFile, 'rb') as fp:
-            self.gloveIndex = pickle.load(fp)
-
         if self.imageType == None:
-            with open(imageIndexFile, 'rb') as fp:
-                self.imageindex = json.load(fp)
+            with open(imageIndexFile, 'r') as fp:
+                self.imageindex = json.loads(fp)
             self.images = np.load(imagesFile)
 
-        with open(questionsEncFile, 'rb') as fp:
+        with open(questionsEncFile, 'r',) as fp:
             self.questionEncoding = json.load(fp)
-        with open(answersEncFile, 'rb') as fp:
+        with open(answersEncFile, 'r') as fp:
             self.answerEncoding = json.load(fp)
 
-        with open(complementaryFile, 'rb') as fp:
+        with open(complementaryFile, 'r') as fp:
             self.complementaries = json.load(fp)
 
         self.answerLength = len(self.answerEncoding)
@@ -106,13 +104,23 @@ class VQAGenerator(Sequence):
             return np.load(self.imagesDirectory+str(imageId)+'.npy')
 
     def gloveEncoding(self):
-        mat = np.random.rand(self.questionLength + 2,100)
+        gloveFile = '%s/Database/%s.pickle' % (DATADIR,GLOVE)
+        with open(gloveFile, 'rb') as fp:
+            gloveIndex = pickle.load(fp)
+
+        inside = 0
+        all = 0
+        mat = np.random.rand(self.questionLength + 2,GLOVE_SIZE)
         inv_tokens = {v: k for k, v in self.questionEncoding.items()}
         for i in range(self.questionLength):
             token = inv_tokens[i]
-
-            if token in self.gloveIndex:
-                mat[i+2] = self.gloveIndex[token]
+            all += 1
+            if token in gloveIndex:
+                inside += 1
+                mat[i+2] = gloveIndex[token]
+        print("tokens")
+        print(inside)
+        print(all)
         return mat
 
 
@@ -165,7 +173,7 @@ class VQAGenerator(Sequence):
 
 
         imageId = self.database['image_ids'][idx]
-        imgPath = self.dataDir+'/Images/'+self.dataSubType+'/COCO_' + self.dataSubType + '_' + str(imageId).zfill(12) + '.jpg'
+        imgPath = DATADIR+'/Images/'+self.dataSubType+'/COCO_' + self.dataSubType + '_' + str(imageId).zfill(12) + '.jpg'
         if os.path.isfile(imgPath):
             # img = Image.open(imgPath)
             img = load_img(imgPath)
