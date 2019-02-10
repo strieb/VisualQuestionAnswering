@@ -33,7 +33,7 @@ tokens = [str.lower(token) for question in database['questions'] for token in qu
 questionEncoding = getMostcommon(tokens,5)
 # answers = [getAnswer(answers) for answers in database['answers']]
 answers = [answer for answers in database['answers'] for answer in answers]
-answerEncoding = getMostcommon(answers,30)
+answerEncoding = getMostcommon(answers,100)
 
 with open(questionsEncFile, 'w') as fp:
     json.dump(questionEncoding, fp)

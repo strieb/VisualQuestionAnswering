@@ -1,5 +1,5 @@
 from keras.applications.inception_v3 import InceptionV3
-from keras.layers import Input, Dense, Concatenate, GRU, Multiply, Reshape, GlobalAveragePooling1D,RepeatVector, Activation, Dot, Lambda, Embedding, AveragePooling2D, Dropout,GaussianDropout
+from keras.layers import Permute, Masking, Add, Conv1D, Input, Dense, Concatenate, GRU,LSTM, Multiply, Reshape,GlobalAveragePooling1D, GlobalMaxPool1D,RepeatVector, Activation, Dot, Lambda, Embedding, AveragePooling2D, Dropout,GaussianDropout
 from keras.models import Model
 
 import tensorflow as tf
@@ -40,24 +40,54 @@ def constant(batch):
 
 
 def evalModel(model):
-    return Model(inputs=model.input, outputs=[model.output, model.get_layer('activation_1').output])
+    argmax = Lambda(lambda x: K.argmax(x,-1))(model.output)
+    return Model(inputs=model.input, outputs=[argmax, argmax])
+    #return Model(inputs=model.input, outputs=[argmax, model.get_layer('activation_1').output])
 
+def createGLU(units, input):
+    conv_1 = Conv1D(units,5,padding="same", activation=None)(input)
+    conv_2 = Conv1D(units,5,padding="same", activation="sigmoid")(input)
+    return Multiply()([conv_1,conv_2])
+
+
+def createGatedTanh(units, input):
+    tanh_layer = Dense(units,activation='tanh')(input)
+    sigmoid_layer = Dense(units,activation='sigmoid')(input)
+    return Multiply()([tanh_layer,sigmoid_layer])
+    
 def createModel(words, answers, glove_encoding):
-    question = Input(shape=(14,))
+    feature_size = 1
 
-    embedding_layer = Embedding(words+2, glove_encoding.shape[1], input_length=14, trainable=True)
+    question = Input(shape=(14,))
+    question_mask = Reshape(target_shape=(14,1))(Lambda(lambda x: K.cast(x>0, K.floatx()))(question))
+    #question_mask_2 = RepeatVector(512)(question_mask_1)
+    #question_mask = Permute((2,1))(question_mask_2)
+    embedding_layer = Embedding(words+4, glove_encoding.shape[1], input_length=14, trainable=True)
     embedding_layer.build((None,))
     embedding_layer.set_weights([glove_encoding])
 
-    question_embedded = embedding_layer(question)
+    question_embedded = embedding_layer(question) # shape = (encodingSize,14)
+    glu_1 = createGLU(512, question_embedded)
+    glu_2 = createGLU(512, glu_1)
+    glu_3 = createGLU(512, glu_2)
+    glu_add = Add()([glu_1,glu_3])
+    glu_gated = createGatedTanh(512,glu_add)
+    glu_maxpool = GlobalAveragePooling1D()(glu_gated)
+
     # question_trained = Dense(100, activation='linear')(question_embedded)
 
-    gru = GRU(512)(question_embedded)
-
-    question_repeat = RepeatVector(24)(gru)
     
-    image = Input(shape=(24, 2048))
+    question_dense = Dense(512, activation='relu')(question_embedded)
+    question_dense_mask = Lambda(lambda x: x[0] * x[1])([question_mask,question_dense])
+    #question_dense_mask = Multiply()([question_mask,question_dense])
+    question_maxpool = GlobalAveragePooling1D()(question_dense_mask)
 
+    # gru = GRU(512)(question_embedded)
+    question_layer = question_maxpool
+
+    question_repeat = RepeatVector(feature_size)(question_layer)
+    
+    image = Input(shape=(feature_size, 2048))
 
     # image_reshape = Reshape(target_shape=(64,2048))(image)
 
@@ -67,25 +97,25 @@ def createModel(words, answers, glove_encoding):
     concat = Concatenate()([question_repeat,image])
     dense_concat = Dense(512, activation='relu')(concat)
     dense_linear = Dense(1, activation='linear')(dense_concat)
-    dense_reshape =  Reshape(target_shape=(24,))(dense_linear)
+    dense_reshape =  Reshape(target_shape=(feature_size,))(dense_linear)
     softmax = Activation(activation='softmax')(dense_reshape)
     # softmax_dropout = Dropout(rate=0.4)(softmax)
-    softmax_reshape =  Reshape(target_shape=(1, 24))(softmax)
+    softmax_reshape =  Reshape(target_shape=(1, feature_size))(softmax)
     image_attention = Lambda(mult)([softmax_reshape,image])
     image_attention_reshape = Reshape(target_shape=(2048,))(image_attention)
     
+    image_reshape = Reshape(target_shape=(2048,))(image)
 
-    dense_question = Dense(512, activation='relu')(gru)
-    # dense_question_mult = Dense(512, activation='relu')(dense_question)
-    # dense_question_concat = Dense(256, activation='relu')(dense_question)
+    dense_question = Dense(512, activation='relu')(question_layer)
+    #dense_question = createGatedTanh(512, question_layer)
 
-    dense_image = Dense(512, activation='relu')(image_attention_reshape)
-    # dense_image_mult = Dense(512, activation='relu')(dense_image)
-    # dense_image_concat = Dense(256, activation='relu')(dense_image)
+    dense_image = Dense(512, activation='relu')(image_reshape)
+    #dense_image = createGatedTanh(512, image_reshape)
 
     both_mult = Multiply()([dense_question,dense_image])
-    # both_concat = Concatenate()([both_mult, dense_question_concat, dense_image_concat])
+
     dense_both = Dense(1024, activation='relu')(both_mult)
+    #dense_both = createGatedTanh(1024, both_mult)
     dense_both_dropout = Dropout(rate=0.5)(dense_both)
     predictions = Dense(answers, activation='sigmoid')(dense_both_dropout)
 

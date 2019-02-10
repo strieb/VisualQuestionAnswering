@@ -35,7 +35,7 @@ class VQAGenerator(Sequence):
 
         if self.imageType == None:
             with open(imageIndexFile, 'r') as fp:
-                self.imageindex = json.loads(fp)
+                self.imageindex = json.load(fp)
             self.images = np.load(imagesFile)
 
         with open(questionsEncFile, 'r',) as fp:
@@ -92,7 +92,7 @@ class VQAGenerator(Sequence):
     def getQuestion(self, i):
         idx = self.good[i]
         question = self.database['questions'][idx]
-        return question
+        return question 
 
     def getImage(self, i):
         idx = self.good[i]
@@ -110,14 +110,17 @@ class VQAGenerator(Sequence):
 
         inside = 0
         all = 0
-        mat = np.random.rand(self.questionLength + 2,GLOVE_SIZE)
+        # 1 - start
+        # 2 - end
+        # 3 - unknown
+        mat = np.random.rand(self.questionLength + 4,GLOVE_SIZE)
         inv_tokens = {v: k for k, v in self.questionEncoding.items()}
         for i in range(self.questionLength):
             token = inv_tokens[i]
             all += 1
             if token in gloveIndex:
                 inside += 1
-                mat[i+2] = gloveIndex[token]
+                mat[i+4] = gloveIndex[token]
         print("tokens")
         print(inside)
         print(all)
@@ -129,7 +132,7 @@ class VQAGenerator(Sequence):
         offset = idx * self.batchSize
         idxs = self.good[offset: offset + self.batchSize]
         size = len(idxs)
-        imageBatch = np.ndarray((size,24, 2048), dtype=np.float32)
+        imageBatch = np.ndarray((size,1, 2048), dtype=np.float32)
         questionSpecialBatch = np.zeros((size, maxQuestionLength), dtype=np.int32)
         answerBatch = np.zeros((size, self.answerLength), dtype=np.float32)
 
@@ -144,15 +147,15 @@ class VQAGenerator(Sequence):
             #     answerBatch[i, self.answerEncoding[answer]] = 1
 
             question = self.getQuestion(i + offset)
-            t = 0
+            t = 1
             for token in question:
                 if t >= 14:
                     break
                 token = str.lower(token)
                 if token in self.questionEncoding:
-                    questionSpecialBatch[i,t] = self.questionEncoding[token] + 2
+                    questionSpecialBatch[i,t] = self.questionEncoding[token] + 4
                 else:
-                    questionSpecialBatch[i,t] = 1
+                    questionSpecialBatch[i,t] = 3
                 t = t + 1
             imageBatch[i, :] = self.getImage(i + offset)
 
@@ -199,7 +202,8 @@ class VQAGenerator(Sequence):
     def evaluate(self, predictions):
         inv_encodings = {v: k for k, v in self.answerEncoding.items()}
         # predictions[:,2047] = 0
-        max = np.argmax(predictions, axis=1)
+        # max = np.argmax(predictions, axis=1)
+        max = predictions
         length = len(max)
         score = 0
         results = []
@@ -207,8 +211,9 @@ class VQAGenerator(Sequence):
             answer = inv_encodings[max[i]]
             question_id = self.database['ids'][i]
             results.append({'question_id': question_id, 'answer': answer})
-            corrects = np.sum([1 if gtAnswer == answer else 0 for gtAnswer in self.database['answers'][i]])
+            corrects = np.sum([1 if gtAnswer == answer else 0 for gtAnswer in self.database['answers'][self.good[i]]])
             score += min(corrects, 3.0) / 3.0
         print('Accuracy: ' + str(score / length))
         with open(self.resultsFile, 'w') as fp:
             json.dump(results, fp)
+        return score / length
