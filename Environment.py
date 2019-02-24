@@ -1,4 +1,8 @@
 DATADIR = 'C:/ml/VQA'
 GLOVE = 'glove.6B.100d'
 GLOVE_SIZE = 100
-TEST_NAME = "dropout_conv"
+# IMAGE_TYPE = None
+IMAGE_TYPE = 'preprocessed_res_24'
+TEST_NAME = "gru_res_24_adagrad"
+IMAGE_FEATURE_STATE_SIZE = 1536
+IMAGE_FEATURE_SIZE = 24

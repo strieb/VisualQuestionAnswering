@@ -15,7 +15,10 @@ from Environment import DATADIR, GLOVE, GLOVE_SIZE
 
 
 class VQAGenerator(Sequence):
-    def __init__(self, train=True, batchSize=32, predict=False, imageType=None):
+    def __init__(self, train=True, batchSize=32, predict=False, imageType=None, imageFeatureStateSize=2048, imageFeatureSize=24,balanced = False):
+        self.balanced = balanced
+        self.imageFeatureSize = imageFeatureSize
+        self.imageFeatureStateSize = imageFeatureStateSize
         self.dataSubType = 'train2014' if train else 'val2014'
         self.batchSize = batchSize
         self.predict = predict
@@ -27,9 +30,10 @@ class VQAGenerator(Sequence):
         questionsEncFile = '%s/Database/questions.json' % (DATADIR)
         answersEncFile = '%s/Database/answers.json' % (DATADIR)
         self.imagesDirectory = '%s/Images/%s/%s/' % (DATADIR,self.dataSubType, self.imageType)
+        self.imagesDirectory2 = '%s/Images/%s/%s/' % (DATADIR,self.dataSubType, 'preprocessed_24')
         complementaryFile = '%s/Database/v2_mscoco_train2014_complementary_pairs.json' % (DATADIR)
         self.resultsFile =  '%s/Results/results.json' % (DATADIR)
-        
+
         with open(databaseFile, 'rb') as fp:
             self.database = pickle.load(fp)
 
@@ -51,15 +55,17 @@ class VQAGenerator(Sequence):
         self.on_epoch_end()
       
     def on_epoch_end(self):
-        if self.train:
-            # random.shuffle(self.complementaries)
-            # complementariesFlat = [index for both in self.complementaries for index in both]
-            # questionIDs = {self.database['ids'][i]: i for i in range(len(self.database['ids']))}
-            # complementariesIds = [questionIDs[index] for index in complementariesFlat]
+        if self.balanced and self.train:
+            random.shuffle(self.complementaries)
+            complementariesFlat = [index for both in self.complementaries for index in both]
+            questionIDs = {self.database['ids'][i]: i for i in range(len(self.database['ids']))}
+            complementariesIds = [questionIDs[index] for index in complementariesFlat]
             allIds = [i for i in range(len(self.database['answers']))]
-            # diff = list(set(allIds)-set(complementariesIds))
-            # random.shuffle(diff)
-            # self.good = diff + complementariesIds
+            diff = list(set(allIds)-set(complementariesIds))
+            random.shuffle(diff)
+            self.good = diff + complementariesIds
+        elif self.train:
+            allIds = [i for i in range(len(self.database['answers']))]
             self.good = allIds
             random.shuffle(self.good)
         else:
@@ -103,6 +109,12 @@ class VQAGenerator(Sequence):
         else:
             return np.load(self.imagesDirectory+str(imageId)+'.npy')
 
+    
+    def getImageFromDirectory(self, i, directory):
+        idx = self.good[i]
+        imageId = self.database['image_ids'][idx]
+        return np.load(directory+str(imageId)+'.npy')
+
     def gloveEncoding(self):
         gloveFile = '%s/Database/%s.pickle' % (DATADIR,GLOVE)
         with open(gloveFile, 'rb') as fp:
@@ -132,7 +144,7 @@ class VQAGenerator(Sequence):
         offset = idx * self.batchSize
         idxs = self.good[offset: offset + self.batchSize]
         size = len(idxs)
-        imageBatch = np.ndarray((size,1, 2048), dtype=np.float32)
+        imageBatch = np.ndarray((size, self.imageFeatureSize, self.imageFeatureStateSize), dtype=np.float32)
         questionSpecialBatch = np.zeros((size, maxQuestionLength), dtype=np.int32)
         answerBatch = np.zeros((size, self.answerLength), dtype=np.float32)
 
@@ -149,7 +161,7 @@ class VQAGenerator(Sequence):
             question = self.getQuestion(i + offset)
             t = 1
             for token in question:
-                if t >= 14:
+                if t >= maxQuestionLength:
                     break
                 token = str.lower(token)
                 if token in self.questionEncoding:
@@ -157,7 +169,9 @@ class VQAGenerator(Sequence):
                 else:
                     questionSpecialBatch[i,t] = 3
                 t = t + 1
-            imageBatch[i, :] = self.getImage(i + offset)
+
+            imageBatch[i,:, :] = self.getImageFromDirectory(i + offset,self.imagesDirectory)
+            # imageBatch[i, :] = np.reshape(self.getImage(i + offset),(64,2048))
 
         input = [questionSpecialBatch, imageBatch]
         if self.predict:
