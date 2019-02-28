@@ -3,19 +3,21 @@ from keras.applications.nasnet import NASNetLarge
 from keras.applications.inception_resnet_v2 import InceptionResNetV2
 from keras.applications.xception import Xception
 from keras.applications.resnext import ResNeXt101
-from keras.layers import BatchNormalization, Permute, Masking, Add, Conv1D, Input, Dense, Concatenate, GRU,LSTM, Multiply, Reshape,GlobalAveragePooling1D, GlobalMaxPool1D,RepeatVector, Activation, Dot, Lambda, Embedding, AveragePooling2D, Dropout,GaussianDropout
+from keras.layers import BatchNormalization, Permute, Masking, Add, Conv1D, Input, Dense, Concatenate, GRU,LSTM, Multiply, Reshape,GlobalAveragePooling1D, GlobalMaxPool1D,RepeatVector, Activation, Dot, Lambda, Embedding, AveragePooling2D, Dropout,GaussianDropout,GaussianNoise
 from keras import regularizers
 from keras.models import Model
+from VQAConfig import VQAConfig
 
 import tensorflow as tf
 from keras import backend as K
 import numpy as np
+# from VQAConfig import VQAConfig
 
 from keras.backend.tensorflow_backend import set_session
-config = tf.ConfigProto()
+config2 = tf.ConfigProto()
 # dynamically grow the memory used on the GPU
-config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
+config2.gpu_options.allow_growth = True
+sess = tf.Session(config=config2)
 set_session(sess)
 
 def createResNetFull(size):
@@ -115,8 +117,7 @@ def createGatedTanhBatchNorm(units, input):
     norm = BatchNormalization()(mult)
     return norm
     
-def createModel(words, answers, glove_encoding, feature_state_size, feature_size):
-
+def createModel(words, answers, glove_encoding,config: VQAConfig):
     question = Input(shape=(14,))
     question_mask = Reshape(target_shape=(14,1))(Lambda(lambda x: K.cast(x>0, K.floatx()))(question))
     #question_mask_2 = RepeatVector(512)(question_mask_1)
@@ -126,6 +127,8 @@ def createModel(words, answers, glove_encoding, feature_state_size, feature_size
     embedding_layer.set_weights([glove_encoding])
 
     question_embedded = embedding_layer(question) # shape = (encodingSize,14)
+    question_embedded_noise = GaussianNoise(0.15)(question_embedded)
+
     question_embedded_masked = createMask(question_embedded,question_mask)
     glu_1 = createGLU(512, question_embedded_masked)
     glu_2 = createGLU(512, glu_1)
@@ -145,35 +148,34 @@ def createModel(words, answers, glove_encoding, feature_state_size, feature_size
     gru = GRU(512)(question_embedded)
     question_layer = gru
     
-    image = Input(shape=(feature_size, feature_state_size))
+    image = Input(shape=(config.imageFeaturemapSize, config.imageFeatureChannels))
 
-    image_attention = createAttentionLayers(image,question_layer,feature_state_size, feature_size)
+    image_attention = createAttentionLayers(image,question_layer,config.imageFeatureChannels, config.imageFeaturemapSize)
 
-    fusion = createFusionLayers(image_attention, question_layer, False)
+    fusion = createFusionLayers(image_attention, question_layer, config)
     predictions = Dense(answers, activation='sigmoid')(fusion)
-
     model = Model(inputs=[question, image], outputs=predictions)
-    model.compile(optimizer='adagrad', loss='categorical_crossentropy')
+    model.compile(optimizer='adam', loss='categorical_crossentropy')
     model.summary()
     return model
 
 
-def createAttentionLayers(image_features, question_features, feature_state_size, feature_size):
-    question_repeat = RepeatVector(feature_size)(question_features)
+def createAttentionLayers(image_features, question_features, channels, mapSize):
+    question_repeat = RepeatVector(mapSize)(question_features)
     concat = Concatenate()([question_repeat,image_features])
     dense_concat = Dense(512, activation='relu')(concat)
     dense_linear = Dense(1, activation='linear')(dense_concat)
-    dense_reshape =  Reshape(target_shape=(feature_size,))(dense_linear)
+    dense_reshape =  Reshape(target_shape=(mapSize,))(dense_linear)
     # divide = Lambda(lambda x: x/5.0)(dense_reshape)
     softmax = Activation(activation='softmax')(dense_reshape)
-    softmax_reshape =  Reshape(target_shape=(1, feature_size))(softmax)
+    softmax_reshape =  Reshape(target_shape=(1, mapSize))(softmax)
     image_attention = Lambda(mult)([softmax_reshape,image_features])
-    image_attention_reshape = Reshape(target_shape=(feature_state_size,))(image_attention)
+    image_attention_reshape = Reshape(target_shape=(channels,))(image_attention)
     return image_attention_reshape
 
 
-def createFusionLayers(image_features, question_features, gatedTanh = False):
-    if gatedTanh:
+def createFusionLayers(image_features, question_features, config: VQAConfig):
+    if config.gatedTanh:
         dense_question = createGatedTanhBatchNorm(512, question_features)
         dense_image = createGatedTanhBatchNorm(512, image_features)
         both_mult = Multiply()([dense_question,dense_image])
@@ -187,5 +189,9 @@ def createFusionLayers(image_features, question_features, gatedTanh = False):
         dense_image = Dense(512, activation='relu')(image_features)
         both_mult = Multiply()([dense_question,dense_image])
         dense_both = Dense(1024, activation='relu')(both_mult)
-        # dense_both_dropout = Dropout(rate=0.5)(dense_both)
+
+    if config.dropout:
+        dense_both_dropout = Dropout(rate=0.5)(dense_both)
+        return dense_both_dropout
+    else:
         return dense_both

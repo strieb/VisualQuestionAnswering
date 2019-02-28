@@ -74,7 +74,7 @@ def processImage(img_resized):
         pred = predictions[0].reshape(24,1536)
         return pred
 
-for k in range(0,5):
+for k in range(4,8):
     print("starting batch "+str(k))
     model = VQAModel.createModelInceptionResNet((size1, size2, 3))
     for file in os.listdir(directory):

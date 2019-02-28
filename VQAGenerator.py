@@ -11,18 +11,19 @@ import matplotlib.colors as colors
 import os
 from keras.preprocessing.image import load_img
 
-from Environment import DATADIR, GLOVE, GLOVE_SIZE
-
+from Environment import DATADIR
+from VQAConfig import VQAConfig
 
 class VQAGenerator(Sequence):
-    def __init__(self, train=True, batchSize=32, predict=False, imageType=None, imageFeatureStateSize=2048, imageFeatureSize=24,balanced = False):
-        self.balanced = balanced
-        self.imageFeatureSize = imageFeatureSize
-        self.imageFeatureStateSize = imageFeatureStateSize
+    def __init__(self, train,  predict, config: VQAConfig):
+        self.config = config
+        self.augmentations = config.augmentations
+        self.imageFeatureSize = config.imageFeaturemapSize
+        self.imageFeatureStateSize = config.imageFeatureChannels
         self.dataSubType = 'train2014' if train else 'val2014'
-        self.batchSize = batchSize
+        self.batchSize = config.batchSize
         self.predict = predict
-        self.imageType = imageType
+        self.imageType = config.imageType
         self.train = train
         databaseFile = '%s/Database/%s.pickle' % (DATADIR, self.dataSubType)
         imageIndexFile = '%s/Database/%simageindex.json' % (DATADIR, self.dataSubType)
@@ -30,7 +31,7 @@ class VQAGenerator(Sequence):
         questionsEncFile = '%s/Database/questions.json' % (DATADIR)
         answersEncFile = '%s/Database/answers.json' % (DATADIR)
         self.imagesDirectory = '%s/Images/%s/%s/' % (DATADIR,self.dataSubType, self.imageType)
-        self.imagesDirectory2 = '%s/Images/%s/%s/' % (DATADIR,self.dataSubType, 'preprocessed_24')
+        self.augmentationDirectory = '%s/Images/%s/%s/' % (DATADIR,self.dataSubType, 'augmented_res_24')
         complementaryFile = '%s/Database/v2_mscoco_train2014_complementary_pairs.json' % (DATADIR)
         self.resultsFile =  '%s/Results/results.json' % (DATADIR)
 
@@ -55,16 +56,16 @@ class VQAGenerator(Sequence):
         self.on_epoch_end()
       
     def on_epoch_end(self):
-        if self.balanced and self.train:
-            random.shuffle(self.complementaries)
-            complementariesFlat = [index for both in self.complementaries for index in both]
-            questionIDs = {self.database['ids'][i]: i for i in range(len(self.database['ids']))}
-            complementariesIds = [questionIDs[index] for index in complementariesFlat]
-            allIds = [i for i in range(len(self.database['answers']))]
-            diff = list(set(allIds)-set(complementariesIds))
-            random.shuffle(diff)
-            self.good = diff + complementariesIds
-        elif self.train:
+        # if self.balanced and self.train:
+        #     random.shuffle(self.complementaries)
+        #     complementariesFlat = [index for both in self.complementaries for index in both]
+        #     questionIDs = {self.database['ids'][i]: i for i in range(len(self.database['ids']))}
+        #     complementariesIds = [questionIDs[index] for index in complementariesFlat]
+        #     allIds = [i for i in range(len(self.database['answers']))]
+        #     diff = list(set(allIds)-set(complementariesIds))
+        #     random.shuffle(diff)
+        #     self.good = diff + complementariesIds
+        if self.train:
             allIds = [i for i in range(len(self.database['answers']))]
             self.good = allIds
             random.shuffle(self.good)
@@ -107,7 +108,11 @@ class VQAGenerator(Sequence):
             idx = self.imageindex[str(imageId)]
             return self.images[idx]
         else:
-            return np.load(self.imagesDirectory+str(imageId)+'.npy')
+            if self.augmentations == None or not self.train:
+                return np.load(self.imagesDirectory+str(imageId)+'.npy')
+            else:
+                randNumber = random.randint(0,self.augmentations-1)
+                return np.load(self.augmentationDirectory+str(imageId)+'_'+str(randNumber) +'.npy')
 
     
     def getImageFromDirectory(self, i, directory):
@@ -116,7 +121,7 @@ class VQAGenerator(Sequence):
         return np.load(directory+str(imageId)+'.npy')
 
     def gloveEncoding(self):
-        gloveFile = '%s/Database/%s.pickle' % (DATADIR,GLOVE)
+        gloveFile = '%s/Database/%s.pickle' % (DATADIR, self.config.gloveName)
         with open(gloveFile, 'rb') as fp:
             gloveIndex = pickle.load(fp)
 
@@ -125,7 +130,7 @@ class VQAGenerator(Sequence):
         # 1 - start
         # 2 - end
         # 3 - unknown
-        mat = np.random.rand(self.questionLength + 4,GLOVE_SIZE)
+        mat = np.random.rand(self.questionLength + 4, self.config.gloveSize)
         inv_tokens = {v: k for k, v in self.questionEncoding.items()}
         for i in range(self.questionLength):
             token = inv_tokens[i]
@@ -170,8 +175,7 @@ class VQAGenerator(Sequence):
                     questionSpecialBatch[i,t] = 3
                 t = t + 1
 
-            imageBatch[i,:, :] = self.getImageFromDirectory(i + offset,self.imagesDirectory)
-            # imageBatch[i, :] = np.reshape(self.getImage(i + offset),(64,2048))
+            imageBatch[i,:, :] = self.getImage(i + offset)
 
         input = [questionSpecialBatch, imageBatch]
         if self.predict:
