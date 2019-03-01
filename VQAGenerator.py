@@ -205,13 +205,16 @@ class VQAGenerator(Sequence):
             else: 
                 img = img.resize((619, 427), resample=Image.BICUBIC)
                 heat = heat.reshape((6, 4))
+            cmap = plt.get_cmap('magma')
 
             draw = ImageDraw.Draw(img,'RGBA')
             for x in range(heat.shape[0]):
                 for y in range(heat.shape[1]):
-                    r = min(heat[x,y] * 15,1)
-                    gb = max(min(heat[x,y] * 15 - 1,1),0)
-                    draw.ellipse(((x*96+22+40,y*96+22+40),(x*96+22+56,y*96+22+56)),fill=(int(r * 255), int(gb * 255), int(gb * 255), int(r * 255)))
+                    c = cmap(heat[x,y] * 12)
+                    draw.ellipse(((x*96+22+40,y*96+22+40),(x*96+22+56,y*96+22+56)),fill=(int(c[0]*255),int(c[1]*255),int(c[2]*255),int(c[3]*255)))
+                    # r = max(min(heat[x,y] +1,1),0)
+                    # bg = max(min(heat[x,y],1),0)
+                    # draw.ellipse(((x*96+22+40,y*96+22+40),(x*96+22+56,y*96+22+56)),fill=(int((r) * 255), int(bg * 255),int(0 * 255) , int(r * 255)))
             # plt.imshow(heat, cmap='hot',norm=colors.Normalize(), interpolation='nearest')
             plt.imshow(img)
             plt.axis('off')

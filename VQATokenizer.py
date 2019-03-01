@@ -35,7 +35,7 @@ questionEncoding = getMostcommon(tokens,5)
 answers = [answer for answers in database['answers'] for answer in answers]
 answerEncoding = getMostcommon(answers,100)
 
-with open(questionsEncFile, 'w') as fp:
-    json.dump(questionEncoding, fp)
-with open(answersEncFile, 'w') as fp:
-    json.dump(answerEncoding, fp)
+# with open(questionsEncFile, 'w') as fp:
+#     json.dump(questionEncoding, fp)
+# with open(answersEncFile, 'w') as fp:
+#     json.dump(answerEncoding, fp)

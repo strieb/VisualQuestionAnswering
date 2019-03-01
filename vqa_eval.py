@@ -13,17 +13,35 @@ import os
 from keras.models import load_model
 from random import randint
 
-from Environment import DATADIR, TEST_NAME, IMAGE_TYPE, IMAGE_FEATURE_SIZE, IMAGE_FEATURE_STATE_SIZE
-model = load_model(DATADIR+'/Results/'+TEST_NAME+'/model.keras')
+from Environment import DATADIR
+from VQAConfig import VQAConfig
 
-prediction_generator = VQAGenerator(False, batchSize=512, imageType=IMAGE_TYPE, imageFeatureSize = IMAGE_FEATURE_SIZE, imageFeatureStateSize = IMAGE_FEATURE_STATE_SIZE, predict= True)
-explain_model = VQAModel.explainModel(model)
+def evalConfig(config: VQAConfig):
 
-prediction, heat = explain_model.predict_generator(prediction_generator,workers=8, steps=50)
-# prediction_generator.evaluate(prediction)
+    model = load_model(DATADIR+'/Results/'+config.testName+'/model_'+config.modelIdentifier+'_'+str(config.epoch)+'.keras')
 
-for xx in range(20):
-    k = randint(0,prediction.shape[0])
-    prediction_generator.print(k,prediction[k],heat[k])
+    prediction_generator = VQAGenerator(False,True, config)
+    explain_model = VQAModel.explainModel(model)
+
+    prediction,top, heat1,heat2 = explain_model.predict_generator(prediction_generator,workers=8, steps=50)
+    acc = prediction_generator.evaluate(top)
+    print(acc)
+    for xx in range(20):
+        k = randint(0,heat1.shape[0])
+        prediction_generator.print(k,prediction[k],heat2[k])
+
+
+evalConfig(VQAConfig(imageType= 'preprocessed_res_24',
+    testName='gru_res_24_dropout_glove_augmented',
+    gloveName='glove.42B.300d',
+    gloveSize=300,
+    dropout=True,
+    augmentations=None,
+    modelIdentifier='Mar-01-2019_1137',
+    epoch=13,
+    stop=16
+    )
+)
+
 
 # model.fit_generator(training_generator, epochs=1, validation_data=validation_generator)

@@ -93,7 +93,8 @@ def evalModel(model):
     return Model(inputs=model.input, outputs=[argmax])
 
 def explainModel(model):
-    return Model(inputs=model.input, outputs=[model.output, model.get_layer('activation_1').output])
+    argmax = Lambda(lambda x: K.argmax(x,-1))(model.output)
+    return Model(inputs=model.input, outputs=[model.output, argmax, model.get_layer('reshape_2').output,model.get_layer('activation_1').output])
 
 def createGLU(units, input):
     conv_1 = Conv1D(units,5,padding="same", activation=None)(input)
@@ -127,7 +128,7 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
     embedding_layer.set_weights([glove_encoding])
 
     question_embedded = embedding_layer(question) # shape = (encodingSize,14)
-    question_embedded_noise = GaussianNoise(0.15)(question_embedded)
+    # question_embedded_noise = GaussianNoise(0.1,name='noise_layer')(question_embedded)
 
     question_embedded_masked = createMask(question_embedded,question_mask)
     glu_1 = createGLU(512, question_embedded_masked)
@@ -180,9 +181,6 @@ def createFusionLayers(image_features, question_features, config: VQAConfig):
         dense_image = createGatedTanhBatchNorm(512, image_features)
         both_mult = Multiply()([dense_question,dense_image])
         dense_both = createGatedTanhBatchNorm(1024, both_mult)
-        dense_both_dropout = Dropout(rate=0.5)(dense_both)
-        return dense_both_dropout
-
     else:
         # ,kernel_regularizer=regularizers.l2(0.01)
         dense_question = Dense(512, activation='relu')(question_features)

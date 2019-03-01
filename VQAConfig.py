@@ -9,7 +9,10 @@ class VQAConfig:
         testName='test',
         augmentations=None,
         dropout=True,
-        gatedTanh=False
+        gatedTanh=False,
+        modelIdentifier=None,
+        epoch=-1,
+        stop=20
         ):
 
         self.batchSize = batchSize
@@ -22,6 +25,9 @@ class VQAConfig:
         self.augmentations = augmentations
         self.dropout=dropout
         self.gatedTanh=gatedTanh
+        self.modelIdentifier = modelIdentifier
+        self.epoch = epoch
+        self.stop = stop
     
     def __str__(self):
         opts = vars(self)
