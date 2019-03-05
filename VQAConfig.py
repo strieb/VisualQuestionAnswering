@@ -11,8 +11,12 @@ class VQAConfig:
         dropout=True,
         gatedTanh=False,
         modelIdentifier=None,
-        epoch=-1,
-        stop=20
+        epoch=0,
+        stop=20,
+        initializer='he_normal',
+        batchNorm=False,
+        embedding='gru',
+        noise=0
         ):
 
         self.batchSize = batchSize
@@ -28,6 +32,10 @@ class VQAConfig:
         self.modelIdentifier = modelIdentifier
         self.epoch = epoch
         self.stop = stop
+        self.initializer = initializer
+        self.batchNorm = batchNorm
+        self.embedding=embedding
+        self.noise=noise
     
     def __str__(self):
         opts = vars(self)

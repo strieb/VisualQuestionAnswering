@@ -176,7 +176,6 @@ class VQAGenerator(Sequence):
                 t = t + 1
 
             imageBatch[i,:, :] = self.getImage(i + offset)
-
         input = [questionSpecialBatch, imageBatch]
         if self.predict:
             return input
@@ -210,7 +209,7 @@ class VQAGenerator(Sequence):
             draw = ImageDraw.Draw(img,'RGBA')
             for x in range(heat.shape[0]):
                 for y in range(heat.shape[1]):
-                    c = cmap(heat[x,y] * 12)
+                    c = cmap((heat[x,y] -8)/ 6 )
                     draw.ellipse(((x*96+22+40,y*96+22+40),(x*96+22+56,y*96+22+56)),fill=(int(c[0]*255),int(c[1]*255),int(c[2]*255),int(c[3]*255)))
                     # r = max(min(heat[x,y] +1,1),0)
                     # bg = max(min(heat[x,y],1),0)

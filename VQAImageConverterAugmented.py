@@ -41,29 +41,28 @@ generator = ImageDataGenerator(
     )
     
 
-# model = VQAModel.createInceptionResNetFull((size1, size2, 3))
-# model.summary()
-# for file in os.listdir(directory):
-#     for k in range(2):
-#         filename = os.fsdecode(file)
-#         if filename.endswith(".jpg"):
-#             imgPath = os.path.join(imgDir, filename)
-#             id = int(filename[-16:-4])
-#             img = load_img(imgPath)
-#             width, height = img.size
-#             if(width >= height):
-#                 img = img.resize((size2, size1), resample=Image.BICUBIC)
-#                 img_array = img_to_array(img)
-#                 img_array = preprocess_input(img_array)
-#                 transformed = generator.random_transform(img_array)
-#                 img_array = np.expand_dims(transformed, axis=0)
+model = VQAModel.createInceptionResNetFull((299, 299, 3))
+for file in os.listdir(directory):
+    for k in range(4):
+        filename = os.fsdecode(file)
+        if filename.endswith(".jpg"):
+            imgPath = os.path.join(imgDir, filename)
+            id = int(filename[-16:-4])
+            img = load_img(imgPath)
+            width, height = img.size
+            if(width >= height):
+                img = img.resize((299, 299), resample=Image.BICUBIC)
+                img_array = img_to_array(img)
+                img_array = preprocess_input(img_array)
+                transformed = generator.random_transform(img_array)
+                img_array = np.expand_dims(transformed, axis=0)
 
-#                 # predictions = model.predict(img_array)
-#                 # print(str(decode_predictions(predictions,top=5)))
+                predictions = model.predict(img_array)
+                print(str(decode_predictions(predictions,top=5)))
 
-#                 plt.imshow((transformed+1.0)/2.0)
-#                 plt.show()
-# exit()
+                plt.imshow((transformed+1.0)/2.0)
+                plt.show()
+exit()
 
 def processImage(img_resized):
         img_array = img_to_array(img_resized)

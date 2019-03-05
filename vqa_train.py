@@ -23,6 +23,8 @@ def trainConfig(config: VQAConfig):
         model = load_model(DATADIR+'/Results/'+config.testName+'/model_'+config.modelIdentifier+'_'+str(config.epoch)+'.keras')
     else:
         model = VQAModel.createModel(training_generator.questionLength, training_generator.answerLength, training_generator.gloveEncoding(), config)
+
+    model.get_layer('noise_layer').stddev = config.noise
     prediction_generator = VQAGenerator(False,True, config)
     eval_model = VQAModel.evalModel(model)
 
@@ -50,7 +52,7 @@ def trainConfig(config: VQAConfig):
         train_accuracy = training_generator.evaluate(prediction)
         training_generator.predict = False
 
-        result_str += "{0:2d}, {1:6.4f}, {2:6.4f}\n".format(i+1,test_accuracy,train_accuracy)
+        result_str += "{0:2d}, {1:6.4f}, {2:6.4f}\n".format(i,test_accuracy,train_accuracy)
 
         with open(DATADIR+'/Results/'+config.testName+'/results-'+timestamp+'.txt', "w") as text_file:
             text_file.write(result_str)
@@ -59,16 +61,22 @@ def trainConfig(config: VQAConfig):
             print("best")
             best = test_accuracy
 
-trainConfig(VQAConfig(imageType= 'preprocessed_res_24',
-    testName='gru_res_24_dropout_glove_augmented',
+trainConfig(VQAConfig(imageType= 'resnext_24',
+    testName='gru_resnext',
     gloveName='glove.42B.300d',
     gloveSize=300,
     dropout=True,
-    augmentations=8,
-    stop=16,
-    gatedTanh=True
+    augmentations=None,
+    stop=23,
+    gatedTanh=True,
+    batchNorm=False,
+    embedding='gru',
+    imageFeaturemapSize=24,
+    imageFeatureChannels=2048,
+    noise=0
     )
 )
+
 
 
 
