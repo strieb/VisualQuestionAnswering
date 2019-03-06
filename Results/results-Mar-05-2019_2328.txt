@@ -1,0 +1,41 @@
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: gru_rcnn_nrom
+augmentations: None
+dropout: True
+gatedTanh: True
+modelIdentifier: None
+epoch: 0
+stop: 23
+initializer: he_normal
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: True
+
+ 1, 0.3954, 0.3951
+ 2, 0.5038, 0.5122
+ 3, 0.5343, 0.5467
+ 4, 0.5521, 0.5745
+ 5, 0.5648, 0.5945
+ 6, 0.5720, 0.6059
+ 7, 0.5837, 0.6305
+ 8, 0.5949, 0.6523
+ 9, 0.5996, 0.6664
+10, 0.6062, 0.6870
+11, 0.6112, 0.6966
+12, 0.6148, 0.7142
+13, 0.6171, 0.7276
+14, 0.6168, 0.7373
+15, 0.6162, 0.7436
+16, 0.6186, 0.7581
+17, 0.6214, 0.7709
+18, 0.6220, 0.7807
+19, 0.6226, 0.7868
+20, 0.6224, 0.7942
+21, 0.6220, 0.8030
+22, 0.6229, 0.8093

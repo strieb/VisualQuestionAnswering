@@ -170,9 +170,10 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
         question_layer = question_maxpool
     
     image = Input(shape=(config.imageFeaturemapSize, config.imageFeatureChannels))
+    image_noise = GaussianNoise(config.noise, name='noise_layer')(image)
     image_norm = Lambda(lambda  x: K.l2_normalize(x,axis=-1))(image)
 
-    image_attention = createAttentionLayers(image,question_layer, config)
+    image_attention = createAttentionLayers(image_norm,question_layer, config)
 
     fusion = createFusionLayers(image_attention, question_layer, config)
     predictions = Dense(answers, activation='sigmoid',kernel_initializer='he_normal' )(fusion)

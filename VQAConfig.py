@@ -16,7 +16,8 @@ class VQAConfig:
         initializer='he_normal',
         batchNorm=False,
         embedding='gru',
-        noise=0
+        noise=0,
+        trainvaltogether=False
         ):
 
         self.batchSize = batchSize
@@ -36,6 +37,7 @@ class VQAConfig:
         self.batchNorm = batchNorm
         self.embedding=embedding
         self.noise=noise
+        self.trainvaltogether=trainvaltogether
     
     def __str__(self):
         opts = vars(self)

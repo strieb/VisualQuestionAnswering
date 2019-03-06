@@ -61,8 +61,8 @@ def trainConfig(config: VQAConfig):
             print("best")
             best = test_accuracy
 
-trainConfig(VQAConfig(imageType= 'resnext_24',
-    testName='gru_resnext',
+trainConfig(VQAConfig(imageType= 'rcnn',
+    testName='gru_rcnn_nrom',
     gloveName='glove.42B.300d',
     gloveSize=300,
     dropout=True,
@@ -71,13 +71,44 @@ trainConfig(VQAConfig(imageType= 'resnext_24',
     gatedTanh=True,
     batchNorm=False,
     embedding='gru',
-    imageFeaturemapSize=24,
+    imageFeaturemapSize=36,
     imageFeatureChannels=2048,
-    noise=0
+    noise=0,
+    trainvaltogether=True
     )
 )
-
-
+trainConfig(VQAConfig(imageType= 'rcnn',
+    testName='gru_rcnn_nrom',
+    gloveName='glove.42B.300d',
+    gloveSize=300,
+    dropout=True,
+    augmentations=None,
+    stop=23,
+    gatedTanh=True,
+    batchNorm=False,
+    embedding='gru',
+    imageFeaturemapSize=36,
+    imageFeatureChannels=2048,
+    noise=0.15,
+    trainvaltogether=True
+    )
+)
+trainConfig(VQAConfig(imageType= 'rcnn',
+    testName='gru_rcnn_nrom',
+    gloveName='glove.42B.300d',
+    gloveSize=300,
+    dropout=False,
+    augmentations=None,
+    stop=23,
+    gatedTanh=True,
+    batchNorm=False,
+    embedding='gru',
+    imageFeaturemapSize=36,
+    imageFeatureChannels=2048,
+    noise=0.0,
+    trainvaltogether=True
+    )
+)
 
 
 # model.fit_generator(training_generator, epochs=1, validation_data=validation_generator)

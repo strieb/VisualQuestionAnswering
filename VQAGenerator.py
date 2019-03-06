@@ -30,7 +30,7 @@ class VQAGenerator(Sequence):
         imagesFile = '%s/Database/%simages.npy' % (DATADIR, self.dataSubType)
         questionsEncFile = '%s/Database/questions.json' % (DATADIR)
         answersEncFile = '%s/Database/answers.json' % (DATADIR)
-        self.imagesDirectory = '%s/Images/%s/%s/' % (DATADIR,self.dataSubType, self.imageType)
+        self.imagesDirectory = '%s/Images/%s/%s/' % (DATADIR, 'both2014' if config.trainvaltogether else self.dataSubType, self.imageType)
         self.augmentationDirectory = '%s/Images/%s/%s/' % (DATADIR,self.dataSubType, 'augmented_res_24')
         complementaryFile = '%s/Database/v2_mscoco_train2014_complementary_pairs.json' % (DATADIR)
         self.resultsFile =  '%s/Results/results.json' % (DATADIR)
