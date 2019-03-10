@@ -6,14 +6,16 @@ import nltk
 from collections import Counter
  
 
-from Environment import dataDir, dataSubType
+from Environment import DATADIR
+
+dataSubType = 'train2014'
 versionType ='v2_' # this should be '' when using VQA v2.0 dataset
 taskType    ='OpenEnded' # 'OpenEnded' only for v2.0. 'OpenEnded' or 'MultipleChoice' for v1.0
 dataType    ='mscoco'  # 'mscoco' only for v1.0. 'mscoco' for real and 'abstract_v002' for abstract for v1.0.
-annFile     ='%s/Annotations/%s%s_%s_annotations.json'%(dataDir, versionType, dataType, dataSubType)
-quesFile    ='%s/Questions/%s%s_%s_%s_questions.json'%(dataDir, versionType, taskType, dataType, dataSubType)
-imgDir 		= '%s/Images/%s/' %(dataDir, dataSubType)
-databaseFile ='%s/Database/%s.pickle'%(dataDir, dataSubType)
+annFile     ='%s/Annotations/%s%s_%s_annotations.json'%(DATADIR, versionType, dataType, dataSubType)
+quesFile    ='%s/Questions/%s%s_%s_%s_questions.json'%(DATADIR, versionType, taskType, dataType, dataSubType)
+imgDir 		= '%s/Images/%s/' %(DATADIR, dataSubType)
+databaseFile ='%s/Database/%s.pickle'%(DATADIR, dataSubType)
 
 vqa = VQA(annFile,quesFile)
 questions = [nltk.word_tokenize(question['question']) for question in vqa.questions['questions']]

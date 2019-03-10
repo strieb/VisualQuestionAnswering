@@ -94,6 +94,7 @@ class VQAEval:
 			if len(set(gtAnswers)) > 1: 
 				for ansDic in gts[quesId]['answers']:
 					ansDic['answer'] = self.processPunctuation(ansDic['answer'])
+					ansDic['answer'] = self.processDigitArticle(ansDic['answer'])
 			for gtAnsDatum in gts[quesId]['answers']:
 				otherGTAns = [item for item in gts[quesId]['answers'] if item!=gtAnsDatum]
 				matchingAns = [item for item in otherGTAns if item['answer']==resAns]

@@ -2,7 +2,10 @@ import csv
 import numpy as np
 import pickle
 
-from Environment import DATADIR, GLOVE, GLOVE_SIZE
+from Environment import DATADIR
+GLOVE = 'glove.6B.100d'
+GLOVE_SIZE = 100
+
 with open(DATADIR+'/Database/'+GLOVE+'.txt', encoding='utf8') as csvFile:
     csvReader = csv.reader(csvFile, delimiter=' ',quoting=csv.QUOTE_NONE)
     index = {}

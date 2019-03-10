@@ -17,7 +17,11 @@ class VQAConfig:
         batchNorm=False,
         embedding='gru',
         noise=0,
-        trainvaltogether=False
+        trainvaltogether=False,
+        questionDropout=False,
+        imageDropout=False,
+        normalizeImage=False,
+        dropoutRate=0.5
         ):
 
         self.batchSize = batchSize
@@ -38,6 +42,10 @@ class VQAConfig:
         self.embedding=embedding
         self.noise=noise
         self.trainvaltogether=trainvaltogether
+        self.questionDropout=questionDropout
+        self.imageDropout=imageDropout
+        self.normalizeImage=normalizeImage
+        self.dropoutRate = dropoutRate
     
     def __str__(self):
         opts = vars(self)

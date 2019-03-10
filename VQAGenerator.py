@@ -182,7 +182,7 @@ class VQAGenerator(Sequence):
         else:
             return [input, answerBatch]
 
-    def print(self, idx,pred,heat):
+    def print(self, idx, pred, linear, softmax, avg):
         print('Question: ' + str(' '.join(self.database['questions'][idx])))
         print('Answers: ' + str(self.database['answers'][idx]))
         top = [(i,pred[i]) for i in range(len(pred))]
@@ -200,21 +200,27 @@ class VQAGenerator(Sequence):
             width, height = img.size
             if(width < height):
                 img = img.resize((427, 619), resample=Image.BICUBIC)
-                heat = heat.reshape((4, 6))
+                linear = linear.reshape((6, 4))
+                softmax = softmax.reshape((6, 4))
             else: 
                 img = img.resize((619, 427), resample=Image.BICUBIC)
-                heat = heat.reshape((6, 4))
-            cmap = plt.get_cmap('magma')
+                linear = linear.reshape((4, 6))
+                softmax = softmax.reshape((4, 6))
+            cmapline = plt.get_cmap('coolwarm')
+            cmapsoft = plt.get_cmap('magma')
 
             draw = ImageDraw.Draw(img,'RGBA')
-            for x in range(heat.shape[0]):
-                for y in range(heat.shape[1]):
-                    c = cmap((heat[x,y] -8)/ 6 )
+            for x in range(linear.shape[1]):
+                for y in range(linear.shape[0]):
+                    c = cmapline((linear[y,x] - avg + 3)/6)
                     draw.ellipse(((x*96+22+40,y*96+22+40),(x*96+22+56,y*96+22+56)),fill=(int(c[0]*255),int(c[1]*255),int(c[2]*255),int(c[3]*255)))
-                    # r = max(min(heat[x,y] +1,1),0)
-                    # bg = max(min(heat[x,y],1),0)
-                    # draw.ellipse(((x*96+22+40,y*96+22+40),(x*96+22+56,y*96+22+56)),fill=(int((r) * 255), int(bg * 255),int(0 * 255) , int(r * 255)))
-            # plt.imshow(heat, cmap='hot',norm=colors.Normalize(), interpolation='nearest')
+            plt.imshow(img)
+            plt.axis('off')
+            plt.show()
+            for x in range(linear.shape[1]):
+                for y in range(linear.shape[0]):
+                    c = cmapsoft(softmax[y,x] * 5.0)
+                    draw.ellipse(((x*96+22+40,y*96+22+40),(x*96+22+56,y*96+22+56)),fill=(int(c[0]*255),int(c[1]*255),int(c[2]*255),int(c[3]*255)))
             plt.imshow(img)
             plt.axis('off')
             plt.show()
@@ -223,17 +229,20 @@ class VQAGenerator(Sequence):
         inv_encodings = {v: k for k, v in self.answerEncoding.items()}
         # predictions[:,2047] = 0
         # max = np.argmax(predictions, axis=1)
-        max = predictions
-        length = len(max)
-        score = 0
+        length = len(predictions)
         results = []
+        acc = []
         for i in range(length):
-            answer = inv_encodings[max[i]]
+            answer = inv_encodings[predictions[i]]
             question_id = self.database['ids'][i]
+            #10 choose 9
+            gtAnswers = self.database['answers'][self.good[i]]
+            for index in range(len(gtAnswers)):
+                others = [gtAnswers[i] for i in range(len(gtAnswers)) if i != index]
+                corrects = np.sum([1 if gtAnswer == answer else 0 for gtAnswer in others])
+                acc.append(min(corrects, 3.0) / 3.0)
+            
             results.append({'question_id': question_id, 'answer': answer})
-            corrects = np.sum([1 if gtAnswer == answer else 0 for gtAnswer in self.database['answers'][self.good[i]]])
-            score += min(corrects, 3.0) / 3.0
-        print('Accuracy: ' + str(score / length))
-        with open(self.resultsFile, 'w') as fp:
-            json.dump(results, fp)
-        return score / length
+        accuracy = float(sum(acc))/len(acc)
+        print('Accuracy: ' + str(accuracy))
+        return accuracy, results

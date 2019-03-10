@@ -15,32 +15,39 @@ from random import randint
 
 from Environment import DATADIR
 from VQAConfig import VQAConfig
+import numpy as np
 
-def evalConfig(config: VQAConfig):
+def explainConfig(config: VQAConfig):
 
     model = load_model(DATADIR+'/Results/'+config.testName+'/model_'+config.modelIdentifier+'_'+str(config.epoch)+'.keras')
   
     prediction_generator = VQAGenerator(False,True, config)
     # model = VQAModel.createModel(prediction_generator.questionLength, prediction_generator.answerLength, prediction_generator.gloveEncoding(), config)
-    eval_model = VQAModel.evalModel(model)
+    explain_model = VQAModel.explainModel(model)
 
-    top = eval_model.predict_generator(prediction_generator,workers=8)
+    #prediction,top, heat1,heat2 = explain_model.predict_generator(prediction_generator,workers=8)
+    prediction,top, linear, softmax = explain_model.predict_generator(prediction_generator,workers=8,steps=20)
     acc, results = prediction_generator.evaluate(top)
-    with open(DATADIR+'/Results/'+config.testName+'/results-'+config.modelIdentifier+"_"+str(config.epoch)+'.json', 'w') as fp:
-        json.dump(results, fp)
-    print("Accuracy: "+ str(acc))
-
+    print(acc)
+    avg = np.average(linear)
+    print("avg: "+str(avg))
+    r = randint(0,linear.shape[0]-20)
+    for k in range(100):
+        print(k)
+        prediction_generator.print(k+r,prediction[k+r],linear[k+r],softmax[k+r],avg)
 
 if __name__ == '__main__':
-    evalConfig(VQAConfig(imageType= 'preprocessed_res_24',
+    explainConfig(VQAConfig(imageType= 'preprocessed_res_24',
         testName='inceptionResNet_noise_test',
         gloveName='glove.42B.300d',
         gloveSize=300,
         augmentations=8,
         imageFeaturemapSize=24,
-        imageFeatureChannels=2048,
+        imageFeatureChannels=1536,
         modelIdentifier='Mar-08-2019_0747',
-        trainvaltogether=False,
         epoch=14
         )
     )
+
+
+# model.fit_generator(training_generator, epochs=1, validation_data=validation_generator)

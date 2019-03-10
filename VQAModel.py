@@ -93,8 +93,9 @@ def evalModel(model):
     return Model(inputs=model.input, outputs=[argmax])
 
 def explainModel(model):
-    argmax = Lambda(lambda x: K.argmax(x,-1))(model.output)
-    return Model(inputs=model.input, outputs=[model.output, argmax, model.get_layer('reshape_2').output,model.get_layer('activation_1').output])
+    argmax = Lambda(lambda x: K.argmax(x,-1), name='eval_lambda')(model.output)
+    #return Model(inputs=model.input, outputs=[model.output, argmax, model.get_layer('reshape_10').output,model.get_layer('activation_3').output])
+    return Model(inputs=model.input, outputs=[model.output, argmax, model.get_layer('linear_attention').output,model.get_layer('softmax_attention').output])
 
 def createGLU(units,config: VQAConfig, input):
     conv_1 = Conv1D(units,5,padding="same",kernel_initializer=config.initializer, activation=None)(input)
@@ -133,6 +134,7 @@ def createDenseLayer(units, config: VQAConfig, input):
         return Dense(units, activation='relu', kernel_initializer=config.initializer)(input) 
     
 def createModel(words, answers, glove_encoding,config: VQAConfig):
+    K.clear_session()
     question = Input(shape=(14,))
     question_mask = Reshape(target_shape=(14,1))(Lambda(lambda x: K.cast(x>0, K.floatx()))(question))
     #question_mask_2 = RepeatVector(512)(question_mask_1)
@@ -142,7 +144,10 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
     embedding_layer.set_weights([glove_encoding])
 
     question_embedded = embedding_layer(question) # shape = (encodingSize,14)
-    question_embedded_noise = GaussianNoise(config.noise, name='noise_layer')(question_embedded)
+    if config.noise > 0:
+        question_embedded = GaussianNoise(config.noise, name='noise_layer_question')(question_embedded)
+    if config.questionDropout:
+        question_embedded = Dropout(config.dropoutRate)(question_embedded)
 
     question_embedded_masked = createMask(question_embedded,question_mask)
     glu_1 = createGLU(512,config, question_embedded_masked)
@@ -160,7 +165,7 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
     #question_dense_mask = Multiply()([question_mask,question_dense])
     question_maxpool = GlobalAveragePooling1D()(question_dense_mask)
 
-    gru = GRU(512)(question_embedded_noise)
+    gru = GRU(512)(question_embedded)
 
     if config.embedding == 'gru':
         question_layer = gru
@@ -170,10 +175,16 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
         question_layer = question_maxpool
     
     image = Input(shape=(config.imageFeaturemapSize, config.imageFeatureChannels))
-    image_noise = GaussianNoise(config.noise, name='noise_layer')(image)
-    image_norm = Lambda(lambda  x: K.l2_normalize(x,axis=-1))(image)
+    if config.normalizeImage:
+        image_norm = Lambda(lambda  x: K.l2_normalize(x,axis=-1))(image)
+    else:
+        image_norm = image
+    if config.imageDropout:
+        image_dropout = Dropout(config.dropoutRate)(image_norm)
+    else:
+        image_dropout = image_norm
 
-    image_attention = createAttentionLayers(image_norm,question_layer, config)
+    image_attention = createAttentionLayers(image_dropout,question_layer, config)
 
     fusion = createFusionLayers(image_attention, question_layer, config)
     predictions = Dense(answers, activation='sigmoid',kernel_initializer='he_normal' )(fusion)
@@ -188,9 +199,9 @@ def createAttentionLayers(image_features, question_features, config: VQAConfig):
     concat = Concatenate()([question_repeat,image_features])
     dense_concat = createDenseLayer(512,config,concat)
     dense_linear = Dense(1, activation='linear')(dense_concat)
-    dense_reshape =  Reshape(target_shape=(config.imageFeaturemapSize,))(dense_linear)
+    dense_reshape =  Reshape(target_shape=(config.imageFeaturemapSize,),name="linear_attention")(dense_linear)
     # divide = Lambda(lambda x: x/5.0)(dense_reshape)
-    softmax = Activation(activation='softmax')(dense_reshape)
+    softmax = Activation(activation='softmax',name="softmax_attention")(dense_reshape)
     softmax_reshape =  Reshape(target_shape=(1, config.imageFeaturemapSize))(softmax)
     image_attention = Lambda(mult)([softmax_reshape,image_features])
     image_attention_reshape = Reshape(target_shape=(config.imageFeatureChannels,))(image_attention)
@@ -204,7 +215,7 @@ def createFusionLayers(image_features, question_features, config: VQAConfig):
     dense_both = createDenseLayer(1024,config, both_mult)
 
     if config.dropout:
-        dense_both_dropout = Dropout(rate=0.5,name='dropout_layer')(dense_both)
+        dense_both_dropout = Dropout(rate=config.dropoutRate,name='dropout_layer')(dense_both)
         return dense_both_dropout
     else:
         return dense_both

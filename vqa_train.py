@@ -24,7 +24,8 @@ def trainConfig(config: VQAConfig):
     else:
         model = VQAModel.createModel(training_generator.questionLength, training_generator.answerLength, training_generator.gloveEncoding(), config)
 
-    model.get_layer('noise_layer').stddev = config.noise
+#    model.get_layer('noise_layer_image').stddev = config.noise
+#    model.get_layer('noise_layer_question').stddev = config.noise
     prediction_generator = VQAGenerator(False,True, config)
     eval_model = VQAModel.evalModel(model)
 
@@ -35,7 +36,7 @@ def trainConfig(config: VQAConfig):
     t = time.localtime()
     timestamp = time.strftime('%b-%d-%Y_%H%M', t)
 
-    result_str = str(config) +'\n\n'
+    result_str =str(timestamp)+"\n\n"+ str(config) +'\n\n'
     with open(DATADIR+'/Results/'+config.testName+'/results-'+timestamp+'.txt', "w") as text_file:
         text_file.write(result_str)
 
@@ -45,11 +46,11 @@ def trainConfig(config: VQAConfig):
         model.save(DATADIR+'/Results/'+config.testName+'/model_'+timestamp+"_"+str(i)+'.keras')
         print("Test set")
         prediction = eval_model.predict_generator(prediction_generator,workers=6, steps=None if i>6 else 128)
-        test_accuracy = prediction_generator.evaluate(prediction)
+        test_accuracy, results = prediction_generator.evaluate(prediction)
         print("Training set")
         training_generator.predict = True
         prediction = eval_model.predict_generator(training_generator,workers=6, steps=128)
-        train_accuracy = training_generator.evaluate(prediction)
+        train_accuracy, _ = training_generator.evaluate(prediction)
         training_generator.predict = False
 
         result_str += "{0:2d}, {1:6.4f}, {2:6.4f}\n".format(i,test_accuracy,train_accuracy)
@@ -57,58 +58,34 @@ def trainConfig(config: VQAConfig):
         with open(DATADIR+'/Results/'+config.testName+'/results-'+timestamp+'.txt', "w") as text_file:
             text_file.write(result_str)
 
+        with open(DATADIR+'/Results/'+config.testName+'/answers-'+timestamp+"_"+str(i)+'.json', 'w') as fp:
+            json.dump(results, fp)
+
         if test_accuracy > best:
             print("best")
             best = test_accuracy
 
-trainConfig(VQAConfig(imageType= 'rcnn',
-    testName='gru_rcnn_nrom',
-    gloveName='glove.42B.300d',
-    gloveSize=300,
-    dropout=True,
-    augmentations=None,
-    stop=23,
-    gatedTanh=True,
-    batchNorm=False,
-    embedding='gru',
-    imageFeaturemapSize=36,
-    imageFeatureChannels=2048,
-    noise=0,
-    trainvaltogether=True
-    )
-)
-trainConfig(VQAConfig(imageType= 'rcnn',
-    testName='gru_rcnn_nrom',
-    gloveName='glove.42B.300d',
-    gloveSize=300,
-    dropout=True,
-    augmentations=None,
-    stop=23,
-    gatedTanh=True,
-    batchNorm=False,
-    embedding='gru',
-    imageFeaturemapSize=36,
-    imageFeatureChannels=2048,
-    noise=0.15,
-    trainvaltogether=True
-    )
-)
-trainConfig(VQAConfig(imageType= 'rcnn',
-    testName='gru_rcnn_nrom',
-    gloveName='glove.42B.300d',
-    gloveSize=300,
-    dropout=False,
-    augmentations=None,
-    stop=23,
-    gatedTanh=True,
-    batchNorm=False,
-    embedding='gru',
-    imageFeaturemapSize=36,
-    imageFeatureChannels=2048,
-    noise=0.0,
-    trainvaltogether=True
-    )
-)
+if __name__ == '__main__':
 
+    trainConfig(VQAConfig(imageType= 'rcnn',
+        testName='rcnn_batch_norm',
+        gloveName='glove.42B.300d',
+        gloveSize=300,
+        dropout=True,
+        augmentations=None,
+        stop=30,
+        gatedTanh=True,
+        initializer="he_normal",
+        batchNorm=False,
+        embedding='gru',
+        imageFeaturemapSize=36,
+        imageFeatureChannels=2048,
+        questionDropout=True,
+        imageDropout=False,
+        trainvaltogether= True,
+        normalizeImage=True,
+        dropoutRate=0.3
+        )
+    )
 
-# model.fit_generator(training_generator, epochs=1, validation_data=validation_generator)
+  
