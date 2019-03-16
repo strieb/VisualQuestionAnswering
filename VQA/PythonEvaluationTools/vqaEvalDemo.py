@@ -25,9 +25,9 @@ fileTypes   = ['results', 'accuracy', 'evalQA', 'evalQuesType', 'evalAnsType']
 [resFile, accuracyFile, evalQAFile, evalQuesTypeFile, evalAnsTypeFile] = ['%s/Results/%s%s_%s_%s_%s_%s.json'%(dataDir, versionType, taskType, dataType, dataSubType, \
 resultType, fileType) for fileType in fileTypes]  
 
-testName='rcnn_better_dropout'
-modelIdentifier='Mar-09-2019_1508'
-epoch=28
+testName='rcnn_batch_norm'
+modelIdentifier='Mar-10-2019_1442'
+epoch=26
 
 resFile     ='%s/Results/%s/answers-%s_%s.json' %(dataDir,testName,modelIdentifier,epoch)
 

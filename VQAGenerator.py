@@ -66,7 +66,7 @@ class VQAGenerator(Sequence):
         #     random.shuffle(diff)
         #     self.good = diff + complementariesIds
         if self.train:
-            allIds = [i for i in range(len(self.database['answers']))]
+            allIds = [i for i in range(self.config.trainingSize if self.config.trainingSize else len(self.database['answers']))]
             self.good = allIds
             random.shuffle(self.good)
         else:
@@ -156,12 +156,9 @@ class VQAGenerator(Sequence):
         for i in range(size):
             answers = self.getAnswers(i + offset)
             for answer in answers:
-                answerBatch[i, self.answerEncoding[answer]] += 0.1
+                answerBatch[i, self.answerEncoding[answer]] += self.config.scoreMultiplier
                 if answerBatch[i, self.answerEncoding[answer]] > 1:
                     answerBatch[i, self.answerEncoding[answer]] = 1
-            # answer = self.getAnswer(i + offset)
-            # if answer in self.answerEncoding:
-            #     answerBatch[i, self.answerEncoding[answer]] = 1
 
             question = self.getQuestion(i + offset)
             t = 1
@@ -194,7 +191,13 @@ class VQAGenerator(Sequence):
 
         imageId = self.database['image_ids'][idx]
         imgPath = DATADIR+'/Images/'+self.dataSubType+'/COCO_' + self.dataSubType + '_' + str(imageId).zfill(12) + '.jpg'
-        if os.path.isfile(imgPath):
+        print(linear.shape[0])
+        if(linear.shape[0] != 24):
+            img = load_img(imgPath)
+            plt.imshow(img)
+            plt.axis('off')
+            plt.show()
+        else:
             # img = Image.open(imgPath)
             img = load_img(imgPath)
             width, height = img.size

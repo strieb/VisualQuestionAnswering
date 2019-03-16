@@ -21,7 +21,12 @@ class VQAConfig:
         questionDropout=False,
         imageDropout=False,
         normalizeImage=False,
-        dropoutRate=0.5
+        dropoutRate=0.5,
+        loss='categorical_crossentropy',
+        predictNormalizer='sigmoid',
+        optimizer='adam',
+        scoreMultiplier=0.1,
+        trainingSize=None
         ):
 
         self.batchSize = batchSize
@@ -46,6 +51,11 @@ class VQAConfig:
         self.imageDropout=imageDropout
         self.normalizeImage=normalizeImage
         self.dropoutRate = dropoutRate
+        self.loss = loss
+        self.predictNormalizer=predictNormalizer
+        self.optimizer=optimizer
+        self.scoreMultiplier=scoreMultiplier
+        self.trainingSize = trainingSize
     
     def __str__(self):
         opts = vars(self)

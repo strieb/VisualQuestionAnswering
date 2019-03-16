@@ -37,15 +37,27 @@ def explainConfig(config: VQAConfig):
         prediction_generator.print(k+r,prediction[k+r],linear[k+r],softmax[k+r],avg)
 
 if __name__ == '__main__':
-    explainConfig(VQAConfig(imageType= 'preprocessed_res_24',
-        testName='inceptionResNet_noise_test',
+    explainConfig(VQAConfig(
+        imageType= 'preprocessed_res_24',
+        testName='binary_init',
         gloveName='glove.42B.300d',
         gloveSize=300,
-        augmentations=8,
+        dropout=False,
+        augmentations=None,
+        stop=22,
+        gatedTanh=False,
+        initializer="he_normal",
+        batchNorm=False,
+        embedding='gru',
         imageFeaturemapSize=24,
         imageFeatureChannels=1536,
-        modelIdentifier='Mar-08-2019_0747',
-        epoch=14
+        trainvaltogether= False,
+        normalizeImage=False, 
+        predictNormalizer='sigmoid',
+        loss='binary_crossentropy',
+        optimizer='adadelta',
+        modelIdentifier='Mar-14-2019_1212',
+        epoch=5
         )
     )
 

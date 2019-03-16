@@ -106,6 +106,11 @@ def createGLU(units,config: VQAConfig, input):
     else:
         return mult
 
+def createGatedBlock(units,config: VQAConfig, input):
+    glu_1 = createGLU(units, config, input)
+    glu_2 = createGLU(units, config, glu_1)
+    return Add()([input,glu_2])
+
 def createMask(input,mask):
     return Lambda(lambda x: x[0] * x[1])([mask,input])
 
@@ -131,7 +136,12 @@ def createDenseLayer(units, config: VQAConfig, input):
         else:
             return mult
     else:
-        return Dense(units, activation='relu', kernel_initializer=config.initializer)(input) 
+        dense = Dense(units, activation='relu', kernel_initializer=config.initializer)(input) 
+        if config.batchNorm:
+            return  BatchNormalization()(dense)
+        else:
+            return dense
+        
     
 def createModel(words, answers, glove_encoding,config: VQAConfig):
     K.clear_session()
@@ -150,20 +160,17 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
         question_embedded = Dropout(config.dropoutRate)(question_embedded)
 
     question_embedded_masked = createMask(question_embedded,question_mask)
+
     glu_1 = createGLU(512,config, question_embedded_masked)
-    glu_2 = createGLU(512,config, glu_1)
-    glu_3 = createGLU(512,config, glu_2)
-    glu_add = Add()([glu_1,glu_3])
-    glu_gated = createGatedTanhBatchNorm(512,glu_add)
-    glu_avgpool = GlobalAveragePooling1D()(glu_gated)
+    gated_1 = createGatedBlock(512,config, glu_1)
+    gated_2 = createGatedBlock(512,config, gated_1)
+    glu_avgpool = GlobalAveragePooling1D()(gated_2)
 
     # question_trained = Dense(100, activation='linear')(question_embedded)
 
     
-    question_dense = Dense(512, activation='relu')(question_embedded)
-    question_dense_mask = Lambda(lambda x: x[0] * x[1])([question_mask,question_dense])
-    #question_dense_mask = Multiply()([question_mask,question_dense])
-    question_maxpool = GlobalAveragePooling1D()(question_dense_mask)
+    question_avgpool = GlobalAveragePooling1D()(question_embedded)
+    question_dense = createDenseLayer(512, config, question_avgpool)
 
     gru = GRU(512)(question_embedded)
 
@@ -172,7 +179,7 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
     elif config.embedding == 'cnn':
         question_layer = glu_avgpool
     else:
-        question_layer = question_maxpool
+        question_layer = question_dense
     
     image = Input(shape=(config.imageFeaturemapSize, config.imageFeatureChannels))
     if config.normalizeImage:
@@ -187,9 +194,9 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
     image_attention = createAttentionLayers(image_dropout,question_layer, config)
 
     fusion = createFusionLayers(image_attention, question_layer, config)
-    predictions = Dense(answers, activation='sigmoid',kernel_initializer='he_normal' )(fusion)
+    predictions = Dense(answers, activation=config.predictNormalizer,kernel_initializer=config.initializer,use_bias=True )(fusion)
     model = Model(inputs=[question, image], outputs=predictions)
-    model.compile(optimizer='adam', loss='categorical_crossentropy')
+    model.compile(optimizer=config.optimizer, loss=config.loss)
     model.summary()
     return model
 
