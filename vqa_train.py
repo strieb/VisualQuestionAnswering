@@ -24,6 +24,7 @@ def trainConfig(config: VQAConfig,recompile=False):
     else:
         model = VQAModel.createModel(training_generator.questionLength, training_generator.answerLength, training_generator.gloveEncoding(), config)
 
+
 #    model.get_layer('noise_layer_image').stddev = config.noise
 #    model.get_layer('noise_layer_question').stddev = config.noise
     prediction_generator = VQAGenerator(False,True, config)
@@ -51,14 +52,13 @@ def trainConfig(config: VQAConfig,recompile=False):
         # if i == 3 and config.loss=='binary_crossentropy':
         #     model.compile(optimizer=config.optimizer, loss=config.loss)
         model.fit_generator(training_generator, epochs=1,workers=6)
-        model.fit_generator(training_generator, epochs=1,workers=6)
         model.save(DATADIR+'/Results/'+config.testName+'/model_'+timestamp+"_"+str(i)+'.keras')
         print("Test set")
         prediction = eval_model.predict_generator(prediction_generator,workers=6, steps= None if i>6 else 128)
         test_accuracy, results = prediction_generator.evaluate(prediction)
         print("Training set")
         training_generator.predict = True
-        prediction = eval_model.predict_generator(training_generator,workers=6, steps=64)
+        prediction = eval_model.predict_generator(training_generator,workers=6, steps=128)
         train_accuracy, _ = training_generator.evaluate(prediction)
         training_generator.predict = False
 
@@ -78,55 +78,191 @@ def trainConfig(config: VQAConfig,recompile=False):
 
 
 if __name__ == '__main__':
+    
+
+    # trainConfig(VQAConfig(
+    #     imageType= 'rcnn',
+    #     testName='gru_rcnn_norm',
+    #     gloveName='glove.42B.300d',
+    #     gloveSize=300,
+    #     dropout=False,
+    #     augmentations=None,
+    #     stop=20,
+    #     gatedTanh=False,
+    #     initializer="he_normal",
+    #     batchNorm=False,
+    #     embedding='gru',
+    #     imageFeaturemapSize=36,
+    #     imageFeatureChannels=2048,
+    #     trainvaltogether= True,
+    #     normalizeImage=False,
+    #     predictNormalizer='sigmoid',
+    #     loss='categorical_crossentropy',
+    #     optimizer='adam',
+    #     scoreMultiplier=0.1,
+    #     regularization=0.0001
+    #     )
+    # )
+
 
     trainConfig(VQAConfig(
-        imageType= 'preprocessed_res_24',
-        testName='training_size',
+        imageType= 'rcnn',
+        testName='botup_single_dropout',
         gloveName='glove.42B.300d',
         gloveSize=300,
         dropout=False,
+        imageDropout=True,
         augmentations=None,
-        stop=12,
-        gatedTanh=False,
-        initializer="glorot_uniform",
+        stop=25,
+        gatedTanh=True,
+        initializer="he_normal",
         batchNorm=False,
         embedding='gru',
-        imageFeaturemapSize=24,
-        imageFeatureChannels=1536,
-        trainvaltogether= False,
-        normalizeImage=False,
+        imageFeaturemapSize=36,
+        imageFeatureChannels=2048,
+        trainvaltogether= True,
+        normalizeImage=True,
         predictNormalizer='sigmoid',
         loss='categorical_crossentropy',
         optimizer='adam',
-        scoreMultiplier=0.1,
-        trainingSize=44376*6
+        scoreMultiplier=0.1
         )
     )
-    
+
+
     trainConfig(VQAConfig(
-        imageType= 'preprocessed_res_24',
-        testName='training_size',
+        imageType= 'rcnn',
+        testName='botup_single_dropout',
         gloveName='glove.42B.300d',
         gloveSize=300,
-        dropout=True,
-        questionDropout=True,
-        augmentations=8,
-        stop=18,
-        gatedTanh=False,
-        initializer="glorot_uniform",
+        dropout=False,
+        attentionDropout=True,
+        augmentations=None,
+        stop=25,
+        gatedTanh=True,
+        initializer="he_normal",
         batchNorm=False,
         embedding='gru',
-        imageFeaturemapSize=24,
-        imageFeatureChannels=1536,
-        trainvaltogether= False,
-        normalizeImage=False,
+        imageFeaturemapSize=36,
+        imageFeatureChannels=2048,
+        trainvaltogether= True,
+        normalizeImage=True,
         predictNormalizer='sigmoid',
         loss='categorical_crossentropy',
         optimizer='adam',
-        scoreMultiplier=0.1,
-        trainingSize=44376*6
+        scoreMultiplier=0.1
         )
     )
+
+    
+    trainConfig(VQAConfig(
+        imageType= 'rcnn',
+        testName='botup_single_dropout',
+        gloveName='glove.42B.300d',
+        gloveSize=300,
+        dropout=False,
+        questionDropout=True,
+        augmentations=None,
+        stop=25,
+        gatedTanh=True,
+        initializer="he_normal",
+        batchNorm=False,
+        embedding='gru',
+        imageFeaturemapSize=36,
+        imageFeatureChannels=2048,
+        trainvaltogether= True,
+        normalizeImage=True,
+        predictNormalizer='sigmoid',
+        loss='categorical_crossentropy',
+        optimizer='adam',
+        scoreMultiplier=0.1
+        )
+    )
+
+    
+    # trainConfig(VQAConfig(
+    #     imageType= 'preprocessed_res_24',
+    #     testName='incres_nothing',
+    #     gloveName='glove.42B.300d',
+    #     gloveSize=300,
+    #     dropout=False,
+    #     augmentations=None,
+    #     stop=30,
+    #     gatedTanh=True,
+    #     initializer="he_normal",
+    #     batchNorm=False,
+    #     embedding='gru',
+    #     imageFeaturemapSize=24,
+    #     imageFeatureChannels=1536,
+    #     predictNormalizer='sigmoid',
+    #     loss='categorical_crossentropy',
+    #     optimizer='adam'
+    #     )
+    # )
+
+    # trainConfig(VQAConfig(
+    #     imageType= 'preprocessed_res_24',
+    #     testName='incres_batchnorm',
+    #     gloveName='glove.42B.300d',
+    #     gloveSize=300,
+    #     dropout=True,
+    #     augmentations=None,
+    #     stop=30,
+    #     gatedTanh=True,
+    #     initializer="he_normal",
+    #     normalizeImage=True,
+    #     batchNorm=True,
+    #     embedding='gru',
+    #     imageFeaturemapSize=24,
+    #     imageFeatureChannels=1536,
+    #     predictNormalizer='sigmoid',
+    #     loss='categorical_crossentropy',
+    #     optimizer='adam'
+    #     )
+    # )
+
+    # trainConfig(VQAConfig(
+    #     imageType= 'preprocessed_res_24',
+    #     testName='incres_augment',
+    #     gloveName='glove.42B.300d',
+    #     gloveSize=300,
+    #     dropout=True,
+    #     augmentations=8,
+    #     stop=20,
+    #     gatedTanh=True,
+    #     initializer="he_normal",
+    #     batchNorm=True,
+    #     embedding='gru',
+    #     imageFeaturemapSize=24,
+    #     imageFeatureChannels=1536,
+    #     predictNormalizer='sigmoid',
+    #     loss='categorical_crossentropy',
+    #     optimizer='adam'
+    #     )
+    # )
+    
+    # trainConfig(VQAConfig(
+    #     imageType= 'preprocessed_res_24',
+    #     testName='incres_augment',
+    #     gloveName='glove.42B.300d',
+    #     gloveSize=300,
+    #     dropout=True,
+    #     questionDropout=True,
+    #     augmentations=8,
+    #     stop=30,
+    #     gatedTanh=True,
+    #     initializer="he_normal",
+    #     batchNorm=False,
+    #     embedding='gru',
+    #     imageFeaturemapSize=24,
+    #     imageFeatureChannels=1536,
+    #     predictNormalizer='sigmoid',
+    #     loss='categorical_crossentropy',
+    #     optimizer='adam'
+    #     )
+    # )
+
+
 
     # trainConfig(VQAConfig(
     #     imageType= 'preprocessed_res_24',

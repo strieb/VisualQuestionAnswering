@@ -20,13 +20,15 @@ class VQAConfig:
         trainvaltogether=False,
         questionDropout=False,
         imageDropout=False,
+        attentionDropout=False,
         normalizeImage=False,
         dropoutRate=0.5,
         loss='categorical_crossentropy',
         predictNormalizer='sigmoid',
         optimizer='adam',
         scoreMultiplier=0.1,
-        trainingSize=None
+        trainingSize=None,
+        regularization=0
         ):
 
         self.batchSize = batchSize
@@ -49,6 +51,7 @@ class VQAConfig:
         self.trainvaltogether=trainvaltogether
         self.questionDropout=questionDropout
         self.imageDropout=imageDropout
+        self.attentionDropout=attentionDropout
         self.normalizeImage=normalizeImage
         self.dropoutRate = dropoutRate
         self.loss = loss
@@ -56,7 +59,8 @@ class VQAConfig:
         self.optimizer=optimizer
         self.scoreMultiplier=scoreMultiplier
         self.trainingSize = trainingSize
-    
+        self.regularization = regularization
+
     def __str__(self):
         opts = vars(self)
         return '\n'.join('%s: %s' % item for item in opts.items())

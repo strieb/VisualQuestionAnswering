@@ -1,0 +1,50 @@
+Mar-18-2019_1408
+
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: botup_relu
+augmentations: None
+dropout: True
+gatedTanh: False
+modelIdentifier: None
+epoch: 0
+stop: 20
+initializer: he_normal
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: True
+questionDropout: False
+imageDropout: False
+attentionDropout: False
+normalizeImage: False
+dropoutRate: 0.5
+loss: categorical_crossentropy
+predictNormalizer: sigmoid
+optimizer: adam
+scoreMultiplier: 0.1
+trainingSize: None
+
+ 1, 0.4758, 0.4819
+ 2, 0.5037, 0.5229
+ 3, 0.5400, 0.5639
+ 4, 0.5628, 0.6001
+ 5, 0.5751, 0.6232
+ 6, 0.5867, 0.6462
+ 7, 0.5869, 0.6608
+ 8, 0.5934, 0.6775
+ 9, 0.5962, 0.6882
+10, 0.5971, 0.6990
+11, 0.5983, 0.7088
+12, 0.6004, 0.7192
+13, 0.5987, 0.7276
+14, 0.5989, 0.7302
+15, 0.6013, 0.7438
+16, 0.2428, 0.2397
+17, 0.2428, 0.2388
+18, 0.2428, 0.2417
+19, 0.2428, 0.2363

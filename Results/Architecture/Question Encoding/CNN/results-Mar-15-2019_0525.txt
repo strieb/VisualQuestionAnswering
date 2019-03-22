@@ -1,0 +1,53 @@
+Mar-15-2019_0525
+
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: cnn_tests
+augmentations: None
+dropout: True
+gatedTanh: True
+modelIdentifier: None
+epoch: 0
+stop: 25
+initializer: he_normal
+batchNorm: True
+embedding: cnn
+noise: 0
+trainvaltogether: True
+questionDropout: False
+imageDropout: False
+normalizeImage: True
+dropoutRate: 0.5
+loss: categorical_crossentropy
+predictNormalizer: sigmoid
+optimizer: adam
+scoreMultiplier: 0.1
+
+ 1, 0.4766, 0.4885
+ 2, 0.5237, 0.5450
+ 3, 0.5454, 0.5779
+ 4, 0.5611, 0.6099
+ 5, 0.5763, 0.6347
+ 6, 0.5851, 0.6555
+ 7, 0.5914, 0.6802
+ 8, 0.5979, 0.7007
+ 9, 0.6031, 0.7217
+10, 0.6049, 0.7371
+11, 0.6073, 0.7537
+12, 0.6079, 0.7656
+13, 0.6103, 0.7835
+14, 0.6108, 0.7913
+15, 0.6124, 0.8067
+16, 0.6115, 0.8158
+17, 0.6102, 0.8239
+18, 0.6109, 0.8299
+19, 0.6115, 0.8373
+20, 0.6112, 0.8435
+21, 0.6118, 0.8507
+22, 0.6139, 0.8568
+23, 0.6128, 0.8577
+24, 0.6127, 0.8622

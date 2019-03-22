@@ -1,0 +1,30 @@
+Mar-12-2019_1206
+
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: botup_relu
+augmentations: None
+dropout: True
+gatedTanh: False
+modelIdentifier: Mar-12-2019_0107
+epoch: 10
+stop: 22
+initializer: glorot_uniform
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: True
+questionDropout: False
+imageDropout: False
+normalizeImage: False
+dropoutRate: 0.5
+
+11, 0.6019, 0.7200
+12, 0.6022, 0.7299
+13, 0.6043, 0.7361
+14, 0.6033, 0.7458
+15, 0.6020, 0.7522

@@ -1,0 +1,44 @@
+Mar-20-2019_2346
+
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: botup_softmax
+augmentations: None
+dropout: True
+gatedTanh: True
+modelIdentifier: Mar-20-2019_1728
+epoch: 18
+stop: 40
+initializer: he_normal
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: True
+questionDropout: False
+imageDropout: False
+attentionDropout: False
+normalizeImage: True
+dropoutRate: 0.5
+loss: categorical_crossentropy
+predictNormalizer: softmax
+optimizer: adam
+scoreMultiplier: 0.1
+trainingSize: None
+
+19, 0.6026, 0.7405
+20, 0.6049, 0.7489
+21, 0.6051, 0.7572
+22, 0.6045, 0.7661
+23, 0.6055, 0.7738
+24, 0.6069, 0.7831
+25, 0.6083, 0.7891
+26, 0.6073, 0.7936
+27, 0.6065, 0.8008
+28, 0.6061, 0.8051
+29, 0.6069, 0.8117
+30, 0.6065, 0.8174
+31, 0.6068, 0.8208

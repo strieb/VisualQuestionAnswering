@@ -1,0 +1,31 @@
+Mar-10-2019_1258
+
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: rcnn_batch_norm
+augmentations: None
+dropout: True
+gatedTanh: True
+modelIdentifier: Mar-10-2019_0702
+epoch: 22
+stop: 30
+initializer: glorot_uniform
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: True
+questionDropout: False
+imageDropout: False
+normalizeImage: True
+
+23, 0.6066, 0.7640
+24, 0.6086, 0.7712
+25, 0.6074, 0.7785
+26, 0.6087, 0.7880
+27, 0.6085, 0.7926
+28, 0.6086, 0.7994
+29, 0.6084, 0.8067

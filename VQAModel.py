@@ -114,19 +114,7 @@ def createGatedBlock(units,config: VQAConfig, input):
 def createMask(input,mask):
     return Lambda(lambda x: x[0] * x[1])([mask,input])
 
-def createGatedTanh(units, input):
-    tanh_layer = Dense(units,activation='tanh',kernel_initializer='he_normal')(input)
-    sigmoid_layer = Dense(units,activation='sigmoid',kernel_initializer='he_normal')(input)
-    return Multiply()([tanh_layer,sigmoid_layer])
-
-def createGatedTanhBatchNorm(units, input):
-    tanh_layer = Dense(units,activation='tanh')(input)
-    sigmoid_layer = Dense(units,activation='sigmoid')(input)
-    mult =  Multiply()([tanh_layer,sigmoid_layer])
-    norm = BatchNormalization()(mult)
-    return norm
-
-def createDenseLayer(units, config: VQAConfig, input):
+def createDenseLayer(units, config: VQAConfig, input, regularize = True):
     if config.gatedTanh:
         tanh_layer = Dense(units,activation='tanh', kernel_initializer=config.initializer)(input)
         sigmoid_layer = Dense(units,activation='sigmoid',kernel_initializer=config.initializer)(input)
@@ -136,7 +124,8 @@ def createDenseLayer(units, config: VQAConfig, input):
         else:
             return mult
     else:
-        dense = Dense(units, activation='relu', kernel_initializer=config.initializer)(input) 
+        regularizer = regularizers.l2(config.regularization) if config.regularization and regularize else None
+        dense = Dense(units, activation='relu', kernel_initializer=config.initializer, kernel_regularizer=regularizer)(input) 
         if config.batchNorm:
             return  BatchNormalization()(dense)
         else:
@@ -170,7 +159,7 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
 
     
     question_avgpool = GlobalAveragePooling1D()(question_embedded)
-    question_dense = createDenseLayer(512, config, question_avgpool)
+    question_dense = Dense(512, activation=None)(question_avgpool)
 
     gru = GRU(512)(question_embedded)
 
@@ -194,7 +183,9 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
     image_attention = createAttentionLayers(image_dropout,question_layer, config)
 
     fusion = createFusionLayers(image_attention, question_layer, config)
-    predictions = Dense(answers, activation=config.predictNormalizer,kernel_initializer=config.initializer,use_bias=True )(fusion)
+    
+    regularizer = regularizers.l2(config.regularization) if config.regularization else None
+    predictions = Dense(answers, activation=config.predictNormalizer,kernel_initializer=config.initializer, kernel_regularizer=regularizer )(fusion)
     model = Model(inputs=[question, image], outputs=predictions)
     model.compile(optimizer=config.optimizer, loss=config.loss)
     model.summary()
@@ -204,7 +195,9 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
 def createAttentionLayers(image_features, question_features, config: VQAConfig):
     question_repeat = RepeatVector(config.imageFeaturemapSize)(question_features)
     concat = Concatenate()([question_repeat,image_features])
-    dense_concat = createDenseLayer(512,config,concat)
+    dense_concat = createDenseLayer(512,config,concat, False)
+    if config.attentionDropout:
+        dense_concat = Dropout(config.dropoutRate)(dense_concat)
     dense_linear = Dense(1, activation='linear')(dense_concat)
     dense_reshape =  Reshape(target_shape=(config.imageFeaturemapSize,),name="linear_attention")(dense_linear)
     # divide = Lambda(lambda x: x/5.0)(dense_reshape)

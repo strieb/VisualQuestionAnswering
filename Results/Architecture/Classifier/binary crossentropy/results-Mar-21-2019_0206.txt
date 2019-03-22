@@ -1,0 +1,58 @@
+Mar-21-2019_0206
+
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: gru_rcnn_norm
+augmentations: None
+dropout: True
+gatedTanh: True
+modelIdentifier: Mar-07-2019_0735
+epoch: 3
+stop: 30
+initializer: he_normal
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: True
+questionDropout: False
+imageDropout: False
+attentionDropout: False
+normalizeImage: True
+dropoutRate: 0.5
+loss: binary_crossentropy
+predictNormalizer: sigmoid
+optimizer: adamax
+scoreMultiplier: 0.3
+trainingSize: None
+regularization: 0
+
+ 4, 0.5335, 0.5483
+ 5, 0.5407, 0.5588
+ 6, 0.5483, 0.5725
+ 7, 0.5556, 0.5815
+ 8, 0.5601, 0.5861
+ 9, 0.5698, 0.6015
+10, 0.5750, 0.6123
+11, 0.5833, 0.6211
+12, 0.5899, 0.6357
+13, 0.5941, 0.6470
+14, 0.5985, 0.6557
+15, 0.6023, 0.6647
+16, 0.6042, 0.6720
+17, 0.6081, 0.6855
+18, 0.6090, 0.6931
+19, 0.6109, 0.7006
+20, 0.6121, 0.7113
+21, 0.6128, 0.7196
+22, 0.6146, 0.7232
+23, 0.6148, 0.7301
+24, 0.6152, 0.7369
+25, 0.6149, 0.7440
+26, 0.6165, 0.7541
+27, 0.6148, 0.7570
+28, 0.6161, 0.7621
+29, 0.6150, 0.7700

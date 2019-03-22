@@ -121,9 +121,6 @@ class VQAGenerator(Sequence):
         return np.load(directory+str(imageId)+'.npy')
 
     def gloveEncoding(self):
-        gloveFile = '%s/Database/%s.pickle' % (DATADIR, self.config.gloveName)
-        with open(gloveFile, 'rb') as fp:
-            gloveIndex = pickle.load(fp)
 
         inside = 0
         all = 0
@@ -131,13 +128,17 @@ class VQAGenerator(Sequence):
         # 2 - end
         # 3 - unknown
         mat = np.random.rand(self.questionLength + 4, self.config.gloveSize)
-        inv_tokens = {v: k for k, v in self.questionEncoding.items()}
-        for i in range(self.questionLength):
-            token = inv_tokens[i]
-            all += 1
-            if token in gloveIndex:
-                inside += 1
-                mat[i+4] = gloveIndex[token]
+        if self.config.gloveName:
+            gloveFile = '%s/Database/%s.pickle' % (DATADIR, self.config.gloveName)
+            with open(gloveFile, 'rb') as fp:
+                gloveIndex = pickle.load(fp)
+            inv_tokens = {v: k for k, v in self.questionEncoding.items()}
+            for i in range(self.questionLength):
+                token = inv_tokens[i]
+                all += 1
+                if token in gloveIndex:
+                    inside += 1
+                    mat[i+4] = gloveIndex[token]
         print("tokens")
         print(inside)
         print(all)

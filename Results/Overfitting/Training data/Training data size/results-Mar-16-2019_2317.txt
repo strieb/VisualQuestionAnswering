@@ -1,0 +1,47 @@
+Mar-16-2019_2317
+
+batchSize: 512
+imageType: preprocessed_res_24
+imageFeaturemapSize: 24
+imageFeatureChannels: 1536
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: training_size
+augmentations: 8
+dropout: True
+gatedTanh: False
+modelIdentifier: None
+epoch: 0
+stop: 18
+initializer: glorot_uniform
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: False
+questionDropout: True
+imageDropout: False
+normalizeImage: False
+dropoutRate: 0.5
+loss: categorical_crossentropy
+predictNormalizer: sigmoid
+optimizer: adam
+scoreMultiplier: 0.1
+trainingSize: 266256
+
+ 1, 0.4558, 0.4603
+ 2, 0.4772, 0.5016
+ 3, 0.5017, 0.5395
+ 4, 0.5163, 0.5645
+ 5, 0.5235, 0.5865
+ 6, 0.5335, 0.6127
+ 7, 0.5379, 0.6323
+ 8, 0.5418, 0.6496
+ 9, 0.5431, 0.6681
+10, 0.5455, 0.6860
+11, 0.5464, 0.6922
+12, 0.5472, 0.7029
+13, 0.5463, 0.7092
+14, 0.5469, 0.7217
+15, 0.5472, 0.7359
+16, 0.5483, 0.7433
+17, 0.5469, 0.7450

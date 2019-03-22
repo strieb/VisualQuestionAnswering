@@ -25,9 +25,9 @@ fileTypes   = ['results', 'accuracy', 'evalQA', 'evalQuesType', 'evalAnsType']
 [resFile, accuracyFile, evalQAFile, evalQuesTypeFile, evalAnsTypeFile] = ['%s/Results/%s%s_%s_%s_%s_%s.json'%(dataDir, versionType, taskType, dataType, dataSubType, \
 resultType, fileType) for fileType in fileTypes]  
 
-testName='rcnn_batch_norm'
-modelIdentifier='Mar-10-2019_1442'
-epoch=26
+testName='incres_augment'
+modelIdentifier='Mar-20-2019_1115'
+epoch=15
 
 resFile     ='%s/Results/%s/answers-%s_%s.json' %(dataDir,testName,modelIdentifier,epoch)
 
@@ -48,6 +48,8 @@ vqaEval.evaluate()
 
 # print accuracies
 evalStr = "\nOverall Accuracy is: %.02f\n" %(vqaEval.accuracy['overall'])
+copyStr = "%.02f & %.02f & %.02f & %.02f & %d \\\\ %% %s %s" %(vqaEval.accuracy['overall'], vqaEval.accuracy['perAnswerType']['yes/no'] , vqaEval.accuracy['perAnswerType']['number'] , vqaEval.accuracy['perAnswerType']['other'], epoch, testName,modelIdentifier)
+print(copyStr)
 # print ("Per Question Type Accuracy is the following:")
 # for quesType in vqaEval.accuracy['perQuestionType']:
 # 	print ("%s : %.02f" %(quesType, vqaEval.accuracy['perQuestionType'][quesType]))
@@ -55,6 +57,7 @@ evalStr = "\nOverall Accuracy is: %.02f\n" %(vqaEval.accuracy['overall'])
 evalStr += "\nPer Answer Type Accuracy is the following:"
 for ansType in vqaEval.accuracy['perAnswerType']:
 	evalStr += "\n%s : %.02f" %(ansType, vqaEval.accuracy['perAnswerType'][ansType])
+		
 
 print("\n")
 print(evalStr)

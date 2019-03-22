@@ -1,0 +1,60 @@
+Mar-19-2019_0226
+
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: None
+gloveSize: 300
+testName: botup_glove
+augmentations: None
+dropout: True
+gatedTanh: True
+modelIdentifier: None
+epoch: 0
+stop: 30
+initializer: he_normal
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: True
+questionDropout: False
+imageDropout: False
+attentionDropout: False
+normalizeImage: True
+dropoutRate: 0.5
+loss: categorical_crossentropy
+predictNormalizer: sigmoid
+optimizer: adam
+scoreMultiplier: 0.1
+trainingSize: None
+
+ 1, 0.3740, 0.3727
+ 2, 0.4422, 0.4455
+ 3, 0.4792, 0.4900
+ 4, 0.4971, 0.5140
+ 5, 0.5094, 0.5301
+ 6, 0.5181, 0.5430
+ 7, 0.5255, 0.5538
+ 8, 0.5280, 0.5619
+ 9, 0.5312, 0.5677
+10, 0.5398, 0.5814
+11, 0.5425, 0.5886
+12, 0.5455, 0.5942
+13, 0.5474, 0.6024
+14, 0.5521, 0.6149
+15, 0.5527, 0.6167
+16, 0.5537, 0.6206
+17, 0.5576, 0.6312
+18, 0.5603, 0.6373
+19, 0.5605, 0.6402
+20, 0.5629, 0.6487
+21, 0.5641, 0.6547
+22, 0.5658, 0.6644
+23, 0.5678, 0.6646
+24, 0.5687, 0.6704
+25, 0.5678, 0.6752
+26, 0.5698, 0.6814
+27, 0.5705, 0.6862
+28, 0.5719, 0.6944
+29, 0.5720, 0.6975
