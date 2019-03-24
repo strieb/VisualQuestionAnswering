@@ -59,26 +59,3 @@ if __name__ == '__main__':
         epoch=27
         )
     )
-    # explainConfig(VQAConfig(
-    #     imageType= 'rcnn',
-    #     testName='rcnn_better_dropout',
-    #     gloveName='glove.42B.300d',
-    #     gloveSize=300,
-    #     dropout=True,
-    #     augmentations=None,
-    #     stop=30,
-    #     gatedTanh=True,
-    #     initializer="he_normal",
-    #     batchNorm=False,
-    #     embedding='gru',
-    #     trainvaltogether=True,
-    #     imageFeaturemapSize=36,
-    #     imageFeatureChannels=2048,
-    #     predictNormalizer='sigmoid',
-    #     loss='binary_crossentropy',
-    #     optimizer='adamax',
-    #     scoreMultiplier=0.3,
-    #     modelIdentifier='Mar-14-2019_2101',
-    #     epoch=24
-    #     )
-    # )
