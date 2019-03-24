@@ -1,0 +1,45 @@
+Mar-16-2019_1133
+
+batchSize: 512
+imageType: preprocessed_res_24
+imageFeaturemapSize: 24
+imageFeatureChannels: 1536
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: augmented_tanh
+augmentations: 1
+dropout: True
+gatedTanh: True
+modelIdentifier: None
+epoch: 0
+stop: 20
+initializer: he_normal
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: False
+questionDropout: False
+imageDropout: False
+normalizeImage: False
+dropoutRate: 0.5
+loss: categorical_crossentropy
+predictNormalizer: sigmoid
+optimizer: adam
+scoreMultiplier: 0.1
+
+ 1, 0.4142, 0.4192
+ 2, 0.4704, 0.4806
+ 3, 0.4896, 0.5082
+ 4, 0.5134, 0.5365
+ 5, 0.5282, 0.5630
+ 6, 0.5370, 0.5901
+ 7, 0.5465, 0.6088
+ 8, 0.5517, 0.6303
+ 9, 0.5551, 0.6482
+10, 0.5542, 0.6631
+11, 0.5576, 0.6839
+12, 0.5583, 0.7014
+13, 0.5578, 0.7195
+14, 0.5571, 0.7343
+15, 0.5567, 0.7469
+16, 0.5576, 0.7609

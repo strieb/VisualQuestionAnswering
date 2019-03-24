@@ -28,38 +28,57 @@ def explainConfig(config: VQAConfig):
     #prediction,top, heat1,heat2 = explain_model.predict_generator(prediction_generator,workers=8)
     prediction,top, linear, softmax = explain_model.predict_generator(prediction_generator,workers=8,steps=20)
     acc, results = prediction_generator.evaluate(top)
-    print(acc)
     avg = np.average(linear)
     print("avg: "+str(avg))
     r = randint(0,linear.shape[0]-20)
-    for k in range(100):
+    r= 100
+    for k in range(2,1000,5):
         print(k)
         prediction_generator.print(k+r,prediction[k+r],linear[k+r],softmax[k+r],avg)
 
 if __name__ == '__main__':
     explainConfig(VQAConfig(
         imageType= 'preprocessed_res_24',
-        testName='binary_init',
+        testName='augmented_tanh',
         gloveName='glove.42B.300d',
         gloveSize=300,
-        dropout=False,
+        dropout=True,
         augmentations=None,
-        stop=22,
-        gatedTanh=False,
+        stop=30,
+        gatedTanh=True,
         initializer="he_normal",
         batchNorm=False,
         embedding='gru',
         imageFeaturemapSize=24,
         imageFeatureChannels=1536,
-        trainvaltogether= False,
-        normalizeImage=False, 
         predictNormalizer='sigmoid',
         loss='binary_crossentropy',
-        optimizer='adadelta',
-        modelIdentifier='Mar-14-2019_1212',
-        epoch=5
+        optimizer='adamax',
+        scoreMultiplier=0.3,
+        modelIdentifier='Mar-23-2019_1816',
+        epoch=27
         )
     )
-
-
-# model.fit_generator(training_generator, epochs=1, validation_data=validation_generator)
+    # explainConfig(VQAConfig(
+    #     imageType= 'rcnn',
+    #     testName='rcnn_better_dropout',
+    #     gloveName='glove.42B.300d',
+    #     gloveSize=300,
+    #     dropout=True,
+    #     augmentations=None,
+    #     stop=30,
+    #     gatedTanh=True,
+    #     initializer="he_normal",
+    #     batchNorm=False,
+    #     embedding='gru',
+    #     trainvaltogether=True,
+    #     imageFeaturemapSize=36,
+    #     imageFeatureChannels=2048,
+    #     predictNormalizer='sigmoid',
+    #     loss='binary_crossentropy',
+    #     optimizer='adamax',
+    #     scoreMultiplier=0.3,
+    #     modelIdentifier='Mar-14-2019_2101',
+    #     epoch=24
+    #     )
+    # )

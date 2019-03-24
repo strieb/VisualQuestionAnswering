@@ -1,0 +1,49 @@
+Mar-21-2019_1952
+
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: gru_rcnn_norm
+augmentations: None
+dropout: False
+gatedTanh: False
+modelIdentifier: None
+epoch: 0
+stop: 20
+initializer: he_normal
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: True
+questionDropout: False
+imageDropout: False
+attentionDropout: False
+normalizeImage: False
+dropoutRate: 0.5
+loss: categorical_crossentropy
+predictNormalizer: sigmoid
+optimizer: adam
+scoreMultiplier: 0.1
+trainingSize: None
+regularization: 3e-05
+
+ 1, 0.4890, 0.4988
+ 2, 0.5247, 0.5476
+ 3, 0.5533, 0.5876
+ 4, 0.5786, 0.6286
+ 5, 0.5855, 0.6494
+ 6, 0.5928, 0.6667
+ 7, 0.5962, 0.6900
+ 8, 0.5993, 0.7052
+ 9, 0.6015, 0.7160
+10, 0.6011, 0.7273
+11, 0.6026, 0.7380
+12, 0.6030, 0.7514
+13, 0.6022, 0.7608
+14, 0.6030, 0.7705
+15, 0.6014, 0.7765
+16, 0.6022, 0.7801
+17, 0.5996, 0.7908

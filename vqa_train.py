@@ -80,102 +80,26 @@ def trainConfig(config: VQAConfig,recompile=False):
 if __name__ == '__main__':
     
 
-    # trainConfig(VQAConfig(
-    #     imageType= 'rcnn',
-    #     testName='gru_rcnn_norm',
-    #     gloveName='glove.42B.300d',
-    #     gloveSize=300,
-    #     dropout=False,
-    #     augmentations=None,
-    #     stop=20,
-    #     gatedTanh=False,
-    #     initializer="he_normal",
-    #     batchNorm=False,
-    #     embedding='gru',
-    #     imageFeaturemapSize=36,
-    #     imageFeatureChannels=2048,
-    #     trainvaltogether= True,
-    #     normalizeImage=False,
-    #     predictNormalizer='sigmoid',
-    #     loss='categorical_crossentropy',
-    #     optimizer='adam',
-    #     scoreMultiplier=0.1,
-    #     regularization=0.0001
-    #     )
-    # )
-
-
     trainConfig(VQAConfig(
-        imageType= 'rcnn',
-        testName='botup_single_dropout',
+        imageType= 'preprocessed_res_24',
+        testName='augmented_tanh',
         gloveName='glove.42B.300d',
         gloveSize=300,
-        dropout=False,
-        imageDropout=True,
+        dropout=True,
         augmentations=None,
-        stop=25,
+        stop=30,
         gatedTanh=True,
         initializer="he_normal",
         batchNorm=False,
         embedding='gru',
-        imageFeaturemapSize=36,
-        imageFeatureChannels=2048,
-        trainvaltogether= True,
-        normalizeImage=True,
+        imageFeaturemapSize=24,
+        imageFeatureChannels=1536,
         predictNormalizer='sigmoid',
         loss='categorical_crossentropy',
         optimizer='adam',
-        scoreMultiplier=0.1
-        )
-    )
+        modelIdentifier='Mar-16-2019_0617',
+        epoch=15,
 
-
-    trainConfig(VQAConfig(
-        imageType= 'rcnn',
-        testName='botup_single_dropout',
-        gloveName='glove.42B.300d',
-        gloveSize=300,
-        dropout=False,
-        attentionDropout=True,
-        augmentations=None,
-        stop=25,
-        gatedTanh=True,
-        initializer="he_normal",
-        batchNorm=False,
-        embedding='gru',
-        imageFeaturemapSize=36,
-        imageFeatureChannels=2048,
-        trainvaltogether= True,
-        normalizeImage=True,
-        predictNormalizer='sigmoid',
-        loss='categorical_crossentropy',
-        optimizer='adam',
-        scoreMultiplier=0.1
-        )
-    )
-
-    
-    trainConfig(VQAConfig(
-        imageType= 'rcnn',
-        testName='botup_single_dropout',
-        gloveName='glove.42B.300d',
-        gloveSize=300,
-        dropout=False,
-        questionDropout=True,
-        augmentations=None,
-        stop=25,
-        gatedTanh=True,
-        initializer="he_normal",
-        batchNorm=False,
-        embedding='gru',
-        imageFeaturemapSize=36,
-        imageFeatureChannels=2048,
-        trainvaltogether= True,
-        normalizeImage=True,
-        predictNormalizer='sigmoid',
-        loss='categorical_crossentropy',
-        optimizer='adam',
-        scoreMultiplier=0.1
         )
     )
 

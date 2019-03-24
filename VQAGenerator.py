@@ -231,8 +231,6 @@ class VQAGenerator(Sequence):
 
     def evaluate(self, predictions):
         inv_encodings = {v: k for k, v in self.answerEncoding.items()}
-        # predictions[:,2047] = 0
-        # max = np.argmax(predictions, axis=1)
         length = len(predictions)
         results = []
         acc = []

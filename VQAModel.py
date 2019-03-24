@@ -11,7 +11,6 @@ from VQAConfig import VQAConfig
 import tensorflow as tf
 from keras import backend as K
 import numpy as np
-# from VQAConfig import VQAConfig
 
 from keras.backend.tensorflow_backend import set_session
 config2 = tf.ConfigProto()
@@ -136,8 +135,7 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
     K.clear_session()
     question = Input(shape=(14,))
     question_mask = Reshape(target_shape=(14,1))(Lambda(lambda x: K.cast(x>0, K.floatx()))(question))
-    #question_mask_2 = RepeatVector(512)(question_mask_1)
-    #question_mask = Permute((2,1))(question_mask_2)
+
     embedding_layer = Embedding(words+4, glove_encoding.shape[1], input_length=14, trainable=True,mask_zero=True)
     embedding_layer.build((None,))
     embedding_layer.set_weights([glove_encoding])
@@ -154,8 +152,6 @@ def createModel(words, answers, glove_encoding,config: VQAConfig):
     gated_1 = createGatedBlock(512,config, glu_1)
     gated_2 = createGatedBlock(512,config, gated_1)
     glu_avgpool = GlobalAveragePooling1D()(gated_2)
-
-    # question_trained = Dense(100, activation='linear')(question_embedded)
 
     
     question_avgpool = GlobalAveragePooling1D()(question_embedded)
@@ -200,7 +196,6 @@ def createAttentionLayers(image_features, question_features, config: VQAConfig):
         dense_concat = Dropout(config.dropoutRate)(dense_concat)
     dense_linear = Dense(1, activation='linear')(dense_concat)
     dense_reshape =  Reshape(target_shape=(config.imageFeaturemapSize,),name="linear_attention")(dense_linear)
-    # divide = Lambda(lambda x: x/5.0)(dense_reshape)
     softmax = Activation(activation='softmax',name="softmax_attention")(dense_reshape)
     softmax_reshape =  Reshape(target_shape=(1, config.imageFeaturemapSize))(softmax)
     image_attention = Lambda(mult)([softmax_reshape,image_features])

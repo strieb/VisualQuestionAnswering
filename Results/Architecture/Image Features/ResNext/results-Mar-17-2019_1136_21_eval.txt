@@ -1,0 +1,7 @@
+
+Overall Accuracy is: 56.71
+
+Per Answer Type Accuracy is the following:
+other : 47.65
+yes/no : 75.95
+number : 35.68

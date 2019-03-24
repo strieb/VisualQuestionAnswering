@@ -25,9 +25,9 @@ fileTypes   = ['results', 'accuracy', 'evalQA', 'evalQuesType', 'evalAnsType']
 [resFile, accuracyFile, evalQAFile, evalQuesTypeFile, evalAnsTypeFile] = ['%s/Results/%s%s_%s_%s_%s_%s.json'%(dataDir, versionType, taskType, dataType, dataSubType, \
 resultType, fileType) for fileType in fileTypes]  
 
-testName='incres_augment'
-modelIdentifier='Mar-20-2019_1115'
-epoch=15
+testName='augmented_tanh'
+modelIdentifier='Mar-23-2019_1816'
+epoch=27
 
 resFile     ='%s/Results/%s/answers-%s_%s.json' %(dataDir,testName,modelIdentifier,epoch)
 

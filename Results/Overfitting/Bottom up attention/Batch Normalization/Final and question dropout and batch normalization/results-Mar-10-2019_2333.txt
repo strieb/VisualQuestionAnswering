@@ -1,0 +1,46 @@
+Mar-10-2019_2333
+
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: botup_batch_norm_2
+augmentations: None
+dropout: True
+gatedTanh: True
+modelIdentifier: None
+epoch: 0
+stop: 22
+initializer: he_normal
+batchNorm: True
+embedding: gru
+noise: 0
+trainvaltogether: True
+questionDropout: True
+imageDropout: False
+normalizeImage: True
+dropoutRate: 0.5
+
+ 1, 0.4652, 0.4716
+ 2, 0.5270, 0.5435
+ 3, 0.5442, 0.5648
+ 4, 0.5657, 0.5992
+ 5, 0.5799, 0.6231
+ 6, 0.5921, 0.6455
+ 7, 0.5959, 0.6629
+ 8, 0.6033, 0.6835
+ 9, 0.6063, 0.6952
+10, 0.6108, 0.7110
+11, 0.6151, 0.7256
+12, 0.6188, 0.7348
+13, 0.6184, 0.7474
+14, 0.6174, 0.7579
+15, 0.6194, 0.7628
+16, 0.6219, 0.7781
+17, 0.6234, 0.7836
+18, 0.6218, 0.7905
+19, 0.6221, 0.7999
+20, 0.6227, 0.8058
+21, 0.6235, 0.8108

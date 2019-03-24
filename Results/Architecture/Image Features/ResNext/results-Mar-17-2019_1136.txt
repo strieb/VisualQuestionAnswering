@@ -1,0 +1,51 @@
+Mar-17-2019_1136
+
+batchSize: 512
+imageType: resnext_24
+imageFeaturemapSize: 24
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: other_nets
+augmentations: None
+dropout: True
+gatedTanh: True
+modelIdentifier: None
+epoch: 0
+stop: 22
+initializer: he_normal
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: False
+questionDropout: False
+imageDropout: False
+normalizeImage: False
+dropoutRate: 0.5
+loss: categorical_crossentropy
+predictNormalizer: sigmoid
+optimizer: adam
+scoreMultiplier: 0.1
+trainingSize: None
+
+ 1, 0.4011, 0.4046
+ 2, 0.4517, 0.4547
+ 3, 0.4841, 0.4971
+ 4, 0.5000, 0.5220
+ 5, 0.5223, 0.5508
+ 6, 0.5326, 0.5695
+ 7, 0.5393, 0.5890
+ 8, 0.5474, 0.6046
+ 9, 0.5531, 0.6209
+10, 0.5563, 0.6363
+11, 0.5606, 0.6548
+12, 0.5625, 0.6630
+13, 0.5636, 0.6791
+14, 0.5657, 0.6933
+15, 0.5669, 0.7031
+16, 0.5667, 0.7184
+17, 0.5652, 0.7289
+18, 0.5667, 0.7357
+19, 0.5669, 0.7454
+20, 0.5658, 0.7537
+21, 0.5670, 0.7657

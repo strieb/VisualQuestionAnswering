@@ -1,0 +1,44 @@
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: rcnn_better_dropout
+augmentations: None
+dropout: True
+gatedTanh: True
+modelIdentifier: None
+epoch: 0
+stop: 23
+initializer: he_normal
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: True
+questionDropout: True
+imageDropout: True
+normalizeImage: True
+
+ 1, 0.3782, 0.3778
+ 2, 0.4596, 0.4614
+ 3, 0.4921, 0.5005
+ 4, 0.5158, 0.5302
+ 5, 0.5309, 0.5517
+ 6, 0.5426, 0.5626
+ 7, 0.5519, 0.5781
+ 8, 0.5568, 0.5892
+ 9, 0.5677, 0.6051
+10, 0.5738, 0.6140
+11, 0.5801, 0.6274
+12, 0.5861, 0.6375
+13, 0.5895, 0.6448
+14, 0.5948, 0.6571
+15, 0.5995, 0.6657
+16, 0.6001, 0.6696
+17, 0.6041, 0.6821
+18, 0.6067, 0.6882
+19, 0.6102, 0.6939
+20, 0.6119, 0.7027
+21, 0.6142, 0.7121
+22, 0.6132, 0.7134

@@ -1,0 +1,35 @@
+Mar-17-2019_1952
+
+batchSize: 512
+imageType: rcnn
+imageFeaturemapSize: 36
+imageFeatureChannels: 2048
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: botup_full
+augmentations: None
+dropout: True
+gatedTanh: True
+modelIdentifier: Mar-11-2019_0203
+epoch: 34
+stop: 40
+initializer: he_normal
+batchNorm: False
+embedding: gru
+noise: 0.2
+trainvaltogether: True
+questionDropout: True
+imageDropout: False
+normalizeImage: True
+dropoutRate: 0.5
+loss: categorical_crossentropy
+predictNormalizer: sigmoid
+optimizer: adam
+scoreMultiplier: 0.1
+trainingSize: None
+
+35, 0.6233, 0.8028
+36, 0.6224, 0.8018
+37, 0.6221, 0.8064
+38, 0.6233, 0.8085
+39, 0.6226, 0.8130

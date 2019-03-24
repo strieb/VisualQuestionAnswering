@@ -1,0 +1,61 @@
+Mar-24-2019_1111
+
+batchSize: 512
+imageType: preprocessed_res_24
+imageFeaturemapSize: 24
+imageFeatureChannels: 1536
+gloveName: glove.42B.300d
+gloveSize: 300
+testName: incres_nothing
+augmentations: None
+dropout: True
+gatedTanh: True
+modelIdentifier: None
+epoch: 0
+stop: 30
+initializer: he_normal
+batchNorm: False
+embedding: gru
+noise: 0
+trainvaltogether: False
+questionDropout: False
+imageDropout: False
+attentionDropout: False
+normalizeImage: True
+dropoutRate: 0.5
+loss: categorical_crossentropy
+predictNormalizer: sigmoid
+optimizer: adam
+scoreMultiplier: 0.1
+trainingSize: None
+regularization: 0
+
+ 1, 0.3661, 0.3674
+ 2, 0.4317, 0.4343
+ 3, 0.4595, 0.4667
+ 4, 0.4700, 0.4816
+ 5, 0.4899, 0.5051
+ 6, 0.4989, 0.5231
+ 7, 0.5046, 0.5356
+ 8, 0.5106, 0.5424
+ 9, 0.5125, 0.5480
+10, 0.5176, 0.5591
+11, 0.5215, 0.5716
+12, 0.5256, 0.5803
+13, 0.5288, 0.5836
+14, 0.5293, 0.5933
+15, 0.5309, 0.5984
+16, 0.5339, 0.6094
+17, 0.5347, 0.6126
+18, 0.5377, 0.6262
+19, 0.5396, 0.6324
+20, 0.5408, 0.6349
+21, 0.5425, 0.6447
+22, 0.5432, 0.6577
+23, 0.5465, 0.6647
+24, 0.5471, 0.6724
+25, 0.5479, 0.6770
+26, 0.5500, 0.6888
+27, 0.5499, 0.6930
+28, 0.5497, 0.7000
+29, 0.5507, 0.7072
